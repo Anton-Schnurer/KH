@@ -1,0 +1,31 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QMainWindow>
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class CMainWindow;
+}
+QT_END_NAMESPACE
+
+class CMainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    CMainWindow(QWidget *parent = nullptr);
+    ~CMainWindow();
+
+public slots:
+    void manageStaff();
+    void managePatients();
+    void manageCases();
+    void manageRoles();
+    void managePerm();
+    void quitWin();
+
+private:
+    Ui::CMainWindow *ui;
+};
+#endif // MAINWINDOW_H

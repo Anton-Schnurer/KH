@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CMainWindow</class>
+ <widget class="QMainWindow" name="CMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>795</width>
+    <height>590</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>CMainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="manageStaff">
+        <property name="text">
+         <string>Manage Staff</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="managePatients">
+        <property name="text">
+         <string>Manage Patients</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="manageCases">
+        <property name="text">
+         <string>Manage Cases</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLineEdit" name="searchText"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="searchBtn">
+        <property name="text">
+         <string>Search</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTableView" name="tableView"/>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QPushButton" name="changeUser">
+        <property name="text">
+         <string>Change User</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Preferred</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="quitBtn">
+        <property name="text">
+         <string>Quit</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>795</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuHospital">
+    <property name="title">
+     <string>Hospital</string>
+    </property>
+    <addaction name="actionChange_User"/>
+    <addaction name="actionManage_Staff"/>
+    <addaction name="actionManage_Patients"/>
+    <addaction name="actionManage_Cases"/>
+    <addaction name="actionManage_Roles"/>
+    <addaction name="actionManage_Permissions"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <addaction name="menuHospital"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNew_Patient">
+   <property name="text">
+    <string>New Patient</string>
+   </property>
+  </action>
+  <action name="actionManage_Staff">
+   <property name="text">
+    <string>Manage Staff</string>
+   </property>
+  </action>
+  <action name="actionManage_Patients">
+   <property name="text">
+    <string>Manage Patients</string>
+   </property>
+  </action>
+  <action name="actionManage_Cases">
+   <property name="text">
+    <string>Manage Cases</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionChange_User">
+   <property name="text">
+    <string>Change User</string>
+   </property>
+  </action>
+  <action name="actionManage_Roles">
+   <property name="text">
+    <string>Manage Roles</string>
+   </property>
+  </action>
+  <action name="actionManage_Permissions">
+   <property name="text">
+    <string>Manage Permissions</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
