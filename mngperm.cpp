@@ -7,6 +7,8 @@ CMngPerm::CMngPerm(QWidget *parent, int permId)
 {
     _permId = permId;
     ui->setupUi(this);
+    this->setWindowTitle("Manage Permission");
+
 
     // manage quit button
     QObject::connect(ui->quitBtn, SIGNAL(clicked()), SLOT(quitWin()));
