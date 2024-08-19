@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     cases.cpp \
+    login.cpp \
     main.cpp \
     mainwindow.cpp \
     mngcase.cpp \
@@ -24,6 +25,8 @@ SOURCES += \
 
 HEADERS += \
     cases.h \
+    connection.h \
+    login.h \
     mainwindow.h \
     mngcase.h \
     mngpatient.h \
@@ -37,6 +40,7 @@ HEADERS += \
 
 FORMS += \
     cases.ui \
+    login.ui \
     mainwindow.ui \
     mngcase.ui \
     mngpatient.ui \

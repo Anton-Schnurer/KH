@@ -2,6 +2,8 @@
 #define STAFF_H
 
 #include <QDialog>
+#include <QModelIndex>
+#include <QSqlQueryModel>
 
 namespace Ui {
 class CStaff;
@@ -18,9 +20,13 @@ public:
 public slots:
     void quitWin();
     void newStaff();
+    void editStaff(const QModelIndex &);
+    void search();
 
 private:
     Ui::CStaff *ui;
+    QSqlQueryModel *sql;
+    void sqlquery(bool filter);
 };
 
 #endif // STAFF_H

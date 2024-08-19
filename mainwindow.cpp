@@ -31,10 +31,14 @@ CMainWindow::CMainWindow(QWidget *parent)
 
     // manages Roles in drop-down menue
     QObject::connect(ui->actionManage_Roles, SIGNAL(triggered()), SLOT(manageRoles()));
+
+    // grey out manage roles in drop-down menue
     ui->actionManage_Roles->setEnabled(false);
 
     // manages Permissions in drop-down menue
     QObject::connect(ui->actionManage_Permissions, SIGNAL(triggered()), SLOT(managePerm()));
+
+    // grey out manage permissions in drop-down menue
     ui->actionManage_Permissions->setEnabled(false);
 
 }
