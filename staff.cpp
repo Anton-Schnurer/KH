@@ -45,9 +45,17 @@ void CStaff::newStaff()
 
 }
 
-void CStaff::editStaff(const QModelIndex &)
+void CStaff::editStaff(const QModelIndex & index)
 {
     // get the id of the record and call the mngstaff window
+    int StaffID = ui->tableView->model()->index(index.row(), _StaffID).data().toInt();
+    // open window
+    CMngStaff mngstaff(this, StaffID);
+    mngstaff.setModal(true);
+    mngstaff.show();
+    mngstaff.exec();
+
+
 }
 
 void CStaff::search()
@@ -58,7 +66,7 @@ void CStaff::search()
 
 void CStaff::sqlquery(bool filter)
 {
-    QString query = "select * from staff";
+    QString query = _staffstr;
 
     if (filter)
     {
@@ -75,13 +83,15 @@ void CStaff::sqlquery(bool filter)
     sql->setHeaderData(3, Qt::Horizontal, "First Name");
     sql->setHeaderData(4, Qt::Horizontal, "Last Name");
     sql->setHeaderData(5, Qt::Horizontal, "Phone Number");
+    sql->setHeaderData(6, Qt::Horizontal, "Permissions");
+    sql->setHeaderData(7, Qt::Horizontal, "Roles");
 
     // Zuweisung zur Table
     ui->tableView->setModel(sql);
     // Verschönerung
     ui->tableView->setAlternatingRowColors(true);
-    ui->tableView->hideColumn(0);
-    ui->tableView->hideColumn(2);
+    ui->tableView->hideColumn(0);                   // hides the id column
+    ui->tableView->hideColumn(2);                   // hides the password
 
 }
 

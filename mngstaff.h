@@ -2,6 +2,9 @@
 #define MNGSTAFF_H
 
 #include <QDialog>
+#include <QSqlQuery>
+#include <QMessageBox>
+#include <QStandardItemModel>
 
 namespace Ui {
 class CMngStaff;
@@ -17,10 +20,17 @@ public:
 
 public slots:
     void quitWin();
+    void save();
+    void delStaff();
+    void newRole();
+    void delRole();
+    void newPerm();
+    void delPerm();
 
 private:
     Ui::CMngStaff *ui;
-    int _staffId;
+    int _StaffId;
+    QStandardItemModel *model;
 };
 
 #endif // MNGSTAFF_H

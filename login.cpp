@@ -29,7 +29,7 @@ void CLogin::login()
 
     // query the database for user/pwd combination
     QSqlQuery sql;
-    sql.exec("select * from staff where StaffUser='"+user+"' and StaffPWD='"+passhash+"'");
+    sql.exec("select * from Staff where StaffUser='" + user + "' and StaffPWD='" + passhash + "'");
     // size returns amount of rows in case of an select stmnt
     if (sql.size() == 1)
     {

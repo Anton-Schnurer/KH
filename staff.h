@@ -20,13 +20,21 @@ public:
 public slots:
     void quitWin();
     void newStaff();
-    void editStaff(const QModelIndex &);
+    void editStaff(const QModelIndex &index);
     void search();
 
 private:
     Ui::CStaff *ui;
     QSqlQueryModel *sql;
     void sqlquery(bool filter);
+    const int _StaffID = 0;
+    QString _staffstr = "select StaffID, StaffUser, StaffPWD, StaffFirstName, StaffLastName, StaffPhoneNr, \
+                                GROUP_CONCAT(Permissions.PermName, ', '), \
+                                GROUP_CONCAT(Roles.RoleName, ', ') from Staff \
+                        join StaffRoles on SRStaffFK = StaffID \
+                        join StaffPerm on SPStaffFK = StaffID \
+                        join Permissions on SPPermFK = PermID \
+                        join Roles on SRRolesFK = RoleID";
 };
 
 #endif // STAFF_H
