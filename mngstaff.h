@@ -30,7 +30,18 @@ public slots:
 private:
     Ui::CMngStaff *ui;
     int _StaffId;
-    QStandardItemModel *model;
+    QStandardItemModel *permmodel;
+    QStandardItemModel *rolemodel;
+    QList<int> permissions;
+    QList<int> roles;
+
+    void fillPerm(int staffid);
+    void fillRole(int staffid);
+    void fillTableFromPerm();
+    void fillTableFromRole();
+    void savePermissions(int staffid);
+    void saveRoles(int staffid);
+
 };
 
 #endif // MNGSTAFF_H
