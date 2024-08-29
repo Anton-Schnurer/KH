@@ -59,6 +59,7 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
         {
             // put data from db into the form
             ui->usernLineEdit->setText(queryone.value(1).toString());
+            // save pwd somewhere so it can be checked later
             ui->pwdLineEdit->setText(queryone.value(2).toString());
             ui->firstnLineEdit->setText(queryone.value(3).toString());
             ui->lastnLineEdit->setText(queryone.value(4).toString());
@@ -100,19 +101,81 @@ void CMngStaff::save()
 
     if (_StaffId == 0)
     {
-        // save new staff member
+        // insert new staff member
+        QSqlQuery queryinsert;
+        queryinsert.prepare("insert into Staff (StaffUser, StaffPWD, StaffFirstName, StaffLastName, StaffPhoneNr) \
+                                        values (:user, :pwd, :fname, :lname, :pnr)");
+        queryinsert.bindValue(":user", ui->usernLineEdit->text());
+
+        // encrypt password before insert
+        QString pwd = ui->pwdLineEdit->text();
+        QByteArray bytea = pwd.toUtf8();
+        QString passhash = QCryptographicHash::hash(bytea,QCryptographicHash::Sha256).toHex();
+
+        queryinsert.bindValue(":pwd", passhash);
+        queryinsert.bindValue(":fname", ui->firstnLineEdit->text());
+        queryinsert.bindValue(":lname", ui->lastnLineEdit->text());
+        queryinsert.bindValue(":pnr", ui->phonenLineEdit->text());
+
+        qDebug() << queryinsert.boundValues();
+
+        if (!queryinsert.exec())
+        {
+            qDebug() << queryinsert.executedQuery();
+
+            QMessageBox msg;
+            msg.setText("Error during Insert");
+            msg.setWindowTitle("Error");
+            msg.addButton("Ok", QMessageBox::YesRole);
+            msg.exec();
+            this->close();
+        }
+        // lastInsertId gets the generated primary key from the database
+        _StaffId = queryinsert.lastInsertId().toInt();
     }
     else
     {
         // update existing staff member
+        QSqlQuery queryupdate;
+        queryupdate.prepare("update Staff set   StaffUser = :user, \
+                                                StaffPWD = :pwd, \
+                                                StaffFirstName = :fname, \
+                                                StaffLastName = :lname, \
+                                                StaffPhoneNr = :pnr \
+                                    where StaffID = :staffid");
 
+        queryupdate.bindValue(":user", ui->usernLineEdit->text());
+
+        // encrypt password before update IF it has been changed
+        QString pwd = ui->pwdLineEdit->text();
+        QByteArray bytea = pwd.toUtf8();
+        QString passhash = QCryptographicHash::hash(bytea,QCryptographicHash::Sha256).toHex();
+
+        queryupdate.bindValue(":pwd", passhash);
+        queryupdate.bindValue(":fname", ui->firstnLineEdit->text());
+        queryupdate.bindValue(":lname", ui->lastnLineEdit->text());
+        queryupdate.bindValue(":pnr", ui->phonenLineEdit->text());
+        queryupdate.bindValue(":staffid", _StaffId);
+
+        if (!queryupdate.exec())
+        {
+            QMessageBox msg;
+            msg.setText("Error during update");
+            msg.setWindowTitle("Error");
+            msg.addButton("Ok", QMessageBox::YesRole);
+            msg.exec();
+        }
     }
+    // fill the permissions/roles intermediate tables StaffPerm/StaffRoles
+    savePermissions(_StaffId);
+    saveRoles(_StaffId);
+    this->close();
 }
 
 void CMngStaff::delStaff()
 {
-    // delete the selected staff member (only under certain conditions)
-    // implement check for roles of current user and if staff member is not connected to any cases/roles/permissions
+    // delete the selected staff member (only under certain conditions) and data in intermediate tables StaffPerm, StaffRoles
+    // implement check if staff member is connected to any cases (StaffSup) and prevent deletion in that case
 }
 
 void CMngStaff::newRole()
@@ -166,6 +229,7 @@ void CMngStaff::newPerm()
     if (!permissions.contains(permid))
     {
         permissions.append(permid);
+        // update view
         fillTableFromPerm();
     }
 
@@ -243,6 +307,7 @@ void CMngStaff::fillTableFromPerm()
     permmodel->setHeaderData(2, Qt::Horizontal, "Description");
     // connect model to view
     ui->permTableView->setModel(permmodel);
+    ui->permTableView->horizontalHeader()->setStretchLastSection(true);
     ui->permTableView->hideColumn(0);
 }
 
@@ -271,6 +336,7 @@ void CMngStaff::fillTableFromRole()
     rolemodel->setHeaderData(2, Qt::Horizontal, "Description");
     // connect model to view
     ui->rolesTableView->setModel(rolemodel);
+    ui->rolesTableView->horizontalHeader()->setStretchLastSection(true);
     ui->rolesTableView->hideColumn(0);
 
 }
@@ -290,7 +356,7 @@ void CMngStaff::savePermissions(int staffid)
         {
             // does not exist
             QSqlQuery insert;
-            insert.prepare("insert into StaffPerm values(:staffid,:permid)");
+            insert.prepare("insert into StaffPerm (SPStaffFK, SPPermFK) values (:staffid,:permid)");
             insert.bindValue(":staffid", staffid);
             insert.bindValue(":permid", permid);
             insert.exec();
@@ -303,7 +369,7 @@ void CMngStaff::savePermissions(int staffid)
     while (queryperm.next())
     {
         // get PermID
-        int permid = queryperm.value(2).toInt();
+        int permid = queryperm.value(0).toInt();
 
         // search in permissions list
         if (permissions.indexOf(permid) == -1)
@@ -335,7 +401,7 @@ void CMngStaff::saveRoles(int staffid)
         {
             // does not exist
             QSqlQuery insert;
-            insert.prepare("insert into StaffRoles values(:staffid,:roleid)");
+            insert.prepare("insert into StaffRoles (SRStaffFK, SRRolesFK) values (:staffid,:roleid)");
             insert.bindValue(":staffid", staffid);
             insert.bindValue(":roleid", roleid);
             insert.exec();
@@ -348,7 +414,7 @@ void CMngStaff::saveRoles(int staffid)
     while (queryrole.next())
     {
         // get RoleID
-        int roleid = queryrole.value(2).toInt();
+        int roleid = queryrole.value(0).toInt();
 
         // search in roles list
         if (roles.indexOf(roleid) == -1)

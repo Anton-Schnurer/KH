@@ -29,16 +29,19 @@ void CLogin::login()
 
     // query the database for user/pwd combination
     QSqlQuery sql;
-    sql.exec("select * from Staff where StaffUser='" + user + "' and StaffPWD='" + passhash + "'");
-    // size returns amount of rows in case of an select stmnt
-    if (sql.size() == 1)
+    sql.prepare("select * from Staff where StaffUser = :user and StaffPWD = :pwd");
+    sql.bindValue(":user", user);
+    sql.bindValue(":pwd", passhash);
+    sql.exec();
+    // check if a record exists
+    if (sql.next())
     {
         _user = user;
     }
     else
     {
         QString a;
-        // entry has not been found or multiple entries (should not be possible)
+        // entry has not been found
         QMessageBox msg;
         msg.setText(a.number(sql.size())+" "+user+" "+pwd+" "+passhash);
         msg.setWindowTitle("Login Error");

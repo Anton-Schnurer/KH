@@ -5,6 +5,8 @@
 #include <QSqlQuery>
 #include <QMessageBox>
 #include <QStandardItemModel>
+#include <QCryptographicHash>
+
 
 namespace Ui {
 class CMngStaff;

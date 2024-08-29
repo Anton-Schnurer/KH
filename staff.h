@@ -29,8 +29,8 @@ private:
     void sqlquery(bool filter);
     const int _StaffID = 0;
     QString _staffstr = "select StaffID, StaffUser, StaffPWD, StaffFirstName, StaffLastName, StaffPhoneNr, \
-                                GROUP_CONCAT(Permissions.PermName, ', '), \
-                                GROUP_CONCAT(Roles.RoleName, ', ') from Staff \
+                                GROUP_CONCAT(DISTINCT(Permissions.PermName)), \
+                                GROUP_CONCAT(DISTINCT(Roles.RoleName)) from Staff \
                         join StaffRoles on SRStaffFK = StaffID \
                         join StaffPerm on SPStaffFK = StaffID \
                         join Permissions on SPPermFK = PermID \

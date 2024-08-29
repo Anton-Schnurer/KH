@@ -7,7 +7,7 @@
 static bool createConnection()
 {
     // define Database
-    qDebug() << QSqlDatabase::drivers();
+    // qDebug() << QSqlDatabase::drivers();
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     // change in the future to read from an config file
     db.setDatabaseName("C:/Users/anton/Documents/_projects/C++/_KH proj/KH/KH.db");

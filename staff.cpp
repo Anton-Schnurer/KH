@@ -19,7 +19,7 @@ CStaff::CStaff(QWidget *parent)
     QObject::connect(ui->newStaffBtn, SIGNAL(clicked()), SLOT(newStaff()));
 
     // table view for staff
-    QObject::connect(ui->tableView, SIGNAL(clicked(const QModelIndex&)), SLOT(editStaff(const QModelIndex&)));
+    QObject::connect(ui->stafftableView, SIGNAL(clicked(const QModelIndex&)), SLOT(editStaff(const QModelIndex&)));
 
     sql = new QSqlQueryModel();
     sqlquery(false);
@@ -43,19 +43,22 @@ void CStaff::newStaff()
     mngstaff.show();
     mngstaff.exec();
 
+    // update list of staff
+    sqlquery(false);
 }
 
 void CStaff::editStaff(const QModelIndex & index)
 {
     // get the id of the record and call the mngstaff window
-    int StaffID = ui->tableView->model()->index(index.row(), _StaffID).data().toInt();
+    int StaffID = ui->stafftableView->model()->index(index.row(), _StaffID).data().toInt();
     // open window
     CMngStaff mngstaff(this, StaffID);
     mngstaff.setModal(true);
     mngstaff.show();
     mngstaff.exec();
 
-
+    // update list of staff
+    sqlquery(false);
 }
 
 void CStaff::search()
@@ -76,6 +79,8 @@ void CStaff::sqlquery(bool filter)
         query += " where StaffFirstName like '%" + name + "%' or StaffLastName like '%" + name + "%'";
         }
     }
+    query += " group by StaffID";
+
     sql->setQuery(query);
     sql->setHeaderData(0, Qt::Horizontal, "Id");
     sql->setHeaderData(1, Qt::Horizontal, "Username");
@@ -87,11 +92,11 @@ void CStaff::sqlquery(bool filter)
     sql->setHeaderData(7, Qt::Horizontal, "Roles");
 
     // Zuweisung zur Table
-    ui->tableView->setModel(sql);
+    ui->stafftableView->setModel(sql);
     // Verschönerung
-    ui->tableView->setAlternatingRowColors(true);
-    ui->tableView->hideColumn(0);                   // hides the id column
-    ui->tableView->hideColumn(2);                   // hides the password
+    ui->stafftableView->setAlternatingRowColors(true);
+    ui->stafftableView->hideColumn(0);                   // hides the id column
+    ui->stafftableView->hideColumn(2);                   // hides the password
 
 }
 
