@@ -8,6 +8,8 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
     _StaffId = staffId;
     ui->setupUi(this);
     this->setWindowTitle("Edit/Create Staff");
+
+    // mask the password entry field
     ui->pwdLineEdit->setEchoMode(QLineEdit::Password);
 
     // save Btn
@@ -74,7 +76,7 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
     }
     else
     {
-        // new entry
+        // disable the delete button for new entry
         ui->delBtn->setEnabled(false);
     }
 
@@ -96,7 +98,7 @@ void CMngStaff::quitWin()
 
 void CMngStaff::save()
 {
-    // save the changes/
+    // save the changes
     // decide how the password update/insert will be handled !!!!
 
     if (_StaffId == 0)
@@ -117,7 +119,7 @@ void CMngStaff::save()
         queryinsert.bindValue(":lname", ui->lastnLineEdit->text());
         queryinsert.bindValue(":pnr", ui->phonenLineEdit->text());
 
-        qDebug() << queryinsert.boundValues();
+        // qDebug() << queryinsert.boundValues();
 
         if (!queryinsert.exec())
         {
@@ -146,6 +148,7 @@ void CMngStaff::save()
 
         queryupdate.bindValue(":user", ui->usernLineEdit->text());
 
+        // check if password has been changed
         // encrypt password before update IF it has been changed
         QString pwd = ui->pwdLineEdit->text();
         QByteArray bytea = pwd.toUtf8();
@@ -174,8 +177,61 @@ void CMngStaff::save()
 
 void CMngStaff::delStaff()
 {
+    if (_StaffId == 0)
+    {
+        // should not be possible because delete button only available in case of an edit
+        QMessageBox msg;
+        msg.setText("Delete with no staff member selected");
+        msg.setWindowTitle("Error");
+        msg.addButton("Ok", QMessageBox::YesRole);
+        msg.exec();
+        return;
+    }
     // delete the selected staff member (only under certain conditions) and data in intermediate tables StaffPerm, StaffRoles
-    // implement check if staff member is connected to any cases (StaffSup) and prevent deletion in that case
+    // implement check if staff member is connected to any cases (StaffCase) and prevent deletion in that case
+    QSqlQuery queryone("select * from StaffCase where StaffID="+ QString::number(_StaffId));
+    if (queryone.next())
+    {
+        // this staff member is connected to at least one case
+        QMessageBox msg;
+        msg.setText("This Staff member is connected to Cases, Deletion not possible");
+        msg.setWindowTitle("Warning");
+        msg.addButton("Ok", QMessageBox::YesRole);
+        msg.exec();
+    }
+    else {
+        // ask if deletion is really intended
+        QMessageBox msg;
+        msg.setText("ARE YOU SURE?");
+        msg.setWindowTitle("Delete Staff");
+        msg.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        msg.setDefaultButton(QMessageBox::Yes);
+        QAbstractButton *but = msg.button(QMessageBox::Yes);
+        but->setText("Ok");
+        if (msg.exec() == QMessageBox::Yes)
+        {
+            // delete data in intermediate tables StaffPerm, StaffRoles
+            QSqlQuery delStaffPerm("delete from StaffPerm where SPStaffFK="+QString::number(_StaffId));
+            if (!delStaffPerm.next())
+            {
+                // something went wrong with delete
+                // there should always be at least one entry in StaffPerm for any Staff
+            }
+            QSqlQuery delStaffRole("delete from StaffRoles where SRStaffFK="+QString::number(_StaffId));
+            if (!delStaffRole.next())
+            {
+                // something went wrong with delete
+                // there should always be at least one entry in StaffPerm for any Staff
+            }
+            // delete the specific staff member
+            QSqlQuery delStaff("delete from Staff where StaffID="+QString::number(_StaffId));
+            if (!delStaff.next())
+            {
+                // something went wrong with delete
+            }
+        }
+    }
+    this->close();
 }
 
 void CMngStaff::newRole()

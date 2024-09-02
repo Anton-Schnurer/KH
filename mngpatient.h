@@ -2,6 +2,9 @@
 #define MNGPATIENT_H
 
 #include <QDialog>
+#include <QSqlQuery>
+#include <QMessageBox>
+
 
 namespace Ui {
 class CMngPatient;
@@ -17,10 +20,13 @@ public:
 
 public slots:
     void quitWin();
+    void save();
+    void delPatient();
+
 
 private:
     Ui::CMngPatient *ui;
-    int _patientId;
+    int _PatientId;
 };
 
 #endif // MNGPATIENT_H
