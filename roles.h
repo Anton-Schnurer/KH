@@ -2,6 +2,9 @@
 #define ROLES_H
 
 #include <QDialog>
+#include <QModelIndex>
+#include <QSqlQueryModel>
+
 
 namespace Ui {
 class CRoles;
@@ -18,9 +21,18 @@ public:
 public slots:
     void quitWin();
     void newRole();
+    void editRole(const QModelIndex &index);
+    void search();
+
 
 private:
     Ui::CRoles *ui;
+    QSqlQueryModel *sql;
+    void sqlquery(bool filter);
+    const int _RoleID = 0;
+    QString _rolestr = "select RoleID, RoleName, RoleDesc \
+        from Roles";
+
 
 };
 

@@ -2,6 +2,9 @@
 #define MNGPERM_H
 
 #include <QDialog>
+#include <QSqlQuery>
+#include <QMessageBox>
+
 
 namespace Ui {
 class CMngPerm;
@@ -17,10 +20,12 @@ public:
 
 public slots:
     void quitWin();
+    void save();
+    void delPerm();
 
 private:
     Ui::CMngPerm *ui;
-    int _permId;
+    int _PermId;
 };
 
 #endif // MNGPERM_H

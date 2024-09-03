@@ -104,7 +104,6 @@ void CMngPatient::save()
             msg.exec();
         }
     }
-    // fill the permissions/roles intermediate tables StaffPerm/StaffRoles
     this->close();
 
 }

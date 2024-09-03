@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     login.exec();
     if (login._user.isEmpty())
     {
-        // return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     CMainWindow w;

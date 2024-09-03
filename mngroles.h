@@ -2,6 +2,9 @@
 #define MNGROLES_H
 
 #include <QDialog>
+#include <QSqlQuery>
+#include <QMessageBox>
+
 
 namespace Ui {
 class CMngRoles;
@@ -17,10 +20,13 @@ public:
 
 public slots:
     void quitWin();
+    void save();
+    void delRole();
+
 
 private:
     Ui::CMngRoles *ui;
-    int _roleId;
+    int _RoleId;
 };
 
 #endif // MNGROLES_H
