@@ -2,6 +2,11 @@
 #define MNGCASE_H
 
 #include <QDialog>
+#include <QSqlQuery>
+#include <QMessageBox>
+#include <QStandardItemModel>
+
+
 
 namespace Ui {
 class CMngCase;
@@ -17,10 +22,24 @@ public:
 
 public slots:
     void quitWin();
+    void save();
+    void delCase();
+    void newSup();
+    void delSup();
+
+
 
 private:
     Ui::CMngCase *ui;
-    int _caseId;
+    int _CaseId;
+
+    QStandardItemModel *supmodel;
+    QList<int> supervisors;
+
+    void fillSup(int caseid);
+    void fillTableFromSup();
+    void saveSupervisors(int caseid);
+
 };
 
 #endif // MNGCASE_H

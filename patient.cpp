@@ -86,8 +86,8 @@ void CPatient::sqlquery(bool filter)
 
     sql->setQuery(query);
     sql->setHeaderData(0, Qt::Horizontal, "Id");
-    sql->setHeaderData(1, Qt::Horizontal, "First Name");
-    sql->setHeaderData(2, Qt::Horizontal, "Last Name");
+    sql->setHeaderData(1, Qt::Horizontal, "Last Name");
+    sql->setHeaderData(2, Qt::Horizontal, "First Name");
     sql->setHeaderData(3, Qt::Horizontal, "SSN");
     sql->setHeaderData(5, Qt::Horizontal, "Phone Number");
 

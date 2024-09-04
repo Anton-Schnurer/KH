@@ -31,7 +31,7 @@ private:
     QSqlQueryModel *sql;
     void sqlquery(bool filter);
     const int _PatientID = 0;
-    QString _patientstr = "select PatientID, PatientFirstName, PatientLastName, PatientSSN, PatientPhoneNr \
+    QString _patientstr = "select PatientID, PatientLastName, PatientFirstName, PatientSSN, PatientPhoneNr \
                            from Patient";
 
 };

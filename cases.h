@@ -30,8 +30,9 @@ private:
     QSqlQueryModel *sql;
     void sqlquery(bool filter);
     const int _CaseID = 0;
-    QString _casestr = "select CaseID, CPatientFK, CaseStart, CaseEnd, CaseDesc \
-                            from Case";
+    QString _casestr = "select CaseID, PatientLastName, PatientFirstName, CaseStart, CaseEnd, CaseDesc \
+                            from Case \
+                            join Patient on CPatientFK = PatientID";
 
 
 };

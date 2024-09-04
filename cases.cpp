@@ -75,17 +75,18 @@ void CCases::sqlquery(bool filter)
 
     if (filter)
     {
-        QString desc = ui->searchPlineEdit->text();
-        if (!desc.isEmpty())
+        QString name = ui->searchPlineEdit->text();
+        if (!name.isEmpty())
         {
-            query += " where CaseDesc like '%" + desc + "%'";
+            query += " where PatientLastName like '%" + name + "%' or PatientFirstName like '%" + name + "%'";
         }
     }
     // query += " group by PermID";
 
     sql->setQuery(query);
     sql->setHeaderData(0, Qt::Horizontal, "Id");
-    sql->setHeaderData(1, Qt::Horizontal, "PatientFK");
+    sql->setHeaderData(1, Qt::Horizontal, "Last Name");
+    sql->setHeaderData(2, Qt::Horizontal, "First Name");
     sql->setHeaderData(3, Qt::Horizontal, "Case Start");
     sql->setHeaderData(4, Qt::Horizontal, "Case End");
     sql->setHeaderData(5, Qt::Horizontal, "Description");
