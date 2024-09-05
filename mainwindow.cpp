@@ -5,6 +5,7 @@
 #include "roles.h"
 #include "perm.h"
 #include "cases.h"
+#include "login.h"
 
 CMainWindow::CMainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -40,6 +41,10 @@ CMainWindow::CMainWindow(QWidget *parent)
 
     // grey out manage permissions in drop-down menue
     // ui->actionManage_Permissions->setEnabled(false);
+
+    // manages ChangeUser in drop-down menue and the button
+    QObject::connect(ui->changeUser, SIGNAL(clicked()), SLOT(changeUser()));
+    QObject::connect(ui->actionChange_User, SIGNAL(triggered()), SLOT(changeUser()));
 
 }
 
@@ -91,4 +96,17 @@ void CMainWindow::managePerm()
 void CMainWindow::quitWin()
 {
     this->close();
+}
+
+void CMainWindow::changeUser()
+{
+    // open login and check if user has been changed or not
+    CLogin login;
+    login.setModal(true);
+    login.show();
+    login.exec();
+    if (login._user.isEmpty())
+    {
+        quitWin();
+    }
 }

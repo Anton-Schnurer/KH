@@ -24,6 +24,7 @@ public slots:
     void manageRoles();
     void managePerm();
     void quitWin();
+    void changeUser();
 
 private:
     Ui::CMainWindow *ui;

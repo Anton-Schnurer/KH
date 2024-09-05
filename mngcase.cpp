@@ -51,7 +51,7 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
     if (_CaseId != 0)
     {
         // put data into the form
-        QSqlQuery queryone("select * from Case where CaseID="+ QString::number(_CaseId));
+        QSqlQuery queryone("select * from 'Case' where CaseID="+ QString::number(_CaseId));
         if (queryone.next())
         {
             // put data from db into the form
@@ -61,13 +61,11 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
             int entry = ui->patientIdComboBox->findData(fk);      // findData searches in key value column of the comboBox
             ui->patientIdComboBox->setCurrentIndex(entry);
 
-            // todo: correctly display QdateTime
-
-            //ui->start_dateTimeEdit->setText(queryone.value(2).toString());
-            //ui->end_dateTimeEdit->setText(queryone.value(3).toString());
+            ui->start_dateTimeEdit->setDate(queryone.value(2).toDate());
+            ui->end_dateTimeEdit->setDate(queryone.value(3).toDate());
             ui->caseDtextEdit->setText(queryone.value(4).toString());
         }
-        // fill out current permissions and roles
+        // fill out current supervisors
         fillSup(_CaseId);
         fillTableFromSup();
 
@@ -107,7 +105,7 @@ void CMngCase::save()
     {
         // insert new case
         QSqlQuery queryinsert;
-        queryinsert.prepare("insert into Case (CPatientFK, CaseStart, CaseEnd, CaseDesc) \
+        queryinsert.prepare("insert into 'Case' (CPatientFK, CaseStart, CaseEnd, CaseDesc) \
                                         values (:patientid, :cstart, :cend, :cdesc)");
 
         queryinsert.bindValue(":patientid", patientid);
@@ -115,11 +113,11 @@ void CMngCase::save()
         queryinsert.bindValue(":cend", ui->end_dateTimeEdit->text());
         queryinsert.bindValue(":cdesc", ui->caseDtextEdit->toPlainText());
 
-        // qDebug() << queryinsert.boundValues();
+        qDebug() << queryinsert.boundValues();
 
         if (!queryinsert.exec())
         {
-            // qDebug() << queryinsert.executedQuery();
+            qDebug() << queryinsert.executedQuery();
 
             QMessageBox msg;
             msg.setText("Error during Insert");
@@ -135,7 +133,7 @@ void CMngCase::save()
     {
         // update existing case
         QSqlQuery queryupdate;
-        queryupdate.prepare("update Case set    CPatientFK = :patientid, \
+        queryupdate.prepare("update 'Case' set  CPatientFK = :patientid, \
                                                 CaseStart = :cstart, \
                                                 CaseEnd = :cend, \
                                                 CaseDesc = :cdesc \
@@ -195,7 +193,7 @@ void CMngCase::delCase()
         }
 
         // delete the specific staff member
-        QSqlQuery delCase("delete from Case where CaseID="+QString::number(_CaseId));
+        QSqlQuery delCase("delete from 'Case' where CaseID="+QString::number(_CaseId));
         if (!delCase.next())
         {
             // something went wrong with delete
