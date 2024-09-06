@@ -36,7 +36,8 @@ HEADERS += \
     patient.h \
     perm.h \
     roles.h \
-    staff.h
+    staff.h \
+    user.h
 
 FORMS += \
     cases.ui \

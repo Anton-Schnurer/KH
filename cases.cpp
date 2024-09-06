@@ -98,5 +98,6 @@ void CCases::sqlquery(bool filter)
     ui->casesTableView->setAlternatingRowColors(true);
     ui->casesTableView->hideColumn(0);                   // hides the id column
     ui->casesTableView->horizontalHeader()->setStretchLastSection(true);     // expands last column description to window-width
+    //ui->casesTableView->resizeRowsToContents();
 
 }
