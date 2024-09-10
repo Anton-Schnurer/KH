@@ -1,6 +1,13 @@
 #include "login.h"
 #include "ui_login.h"
+#include "user.h"
 #include <QMessageBox>
+
+// make static variable and lists known
+QString CUserHandling::_current_user;
+QList<QString> CUserHandling::_perm_list;
+QList<QString> CUserHandling::_role_list;
+
 
 CLogin::CLogin(QWidget *parent)
     : QDialog(parent)
@@ -36,7 +43,12 @@ void CLogin::login()
     // check if a record exists
     if (sql.next())
     {
-        _user = user;
+        CUserHandling::_current_user=user;          // set current username
+        CUserHandling::fill_perm_list();            // fill list of permissions for this user
+        CUserHandling::fill_role_list();            // fill list of roles for this user
+
+        qDebug() << CUserHandling::_perm_list;
+        qDebug() << CUserHandling::_role_list;
     }
     else
     {
@@ -47,6 +59,7 @@ void CLogin::login()
         msg.setWindowTitle("Login Error");
         msg.addButton("Ok", QMessageBox::YesRole);
         msg.exec();
+        CUserHandling::_current_user=NULL;
     }
 
 

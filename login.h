@@ -16,7 +16,6 @@ class CLogin : public QDialog
 public:
     explicit CLogin(QWidget *parent = nullptr);
     ~CLogin();
-    QString _user="";
 
 public slots:
     void login();

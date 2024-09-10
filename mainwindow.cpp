@@ -6,13 +6,15 @@
 #include "perm.h"
 #include "cases.h"
 #include "login.h"
+#include "user.h"
+
 
 CMainWindow::CMainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::CMainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Hospital Management");
+    this->setWindowTitle("Hospital Management --- user: "+CUserHandling::_current_user);
 
     // manages Staff in drop-down menue and the button
     QObject::connect(ui->manageStaff, SIGNAL(clicked()), SLOT(manageStaff()));
@@ -105,8 +107,10 @@ void CMainWindow::changeUser()
     login.setModal(true);
     login.show();
     login.exec();
-    if (login._user.isEmpty())
+    if (CUserHandling::_current_user.isEmpty())
     {
         quitWin();
     }
+    this->setWindowTitle("Hospital Management --- user: "+CUserHandling::_current_user);
+
 }

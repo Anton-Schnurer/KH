@@ -1,11 +1,15 @@
 #include "mainwindow.h"
 #include "connection.h"
 #include "login.h"
+#include "user.h"
 
 #include <QApplication>
 
+
+
 int main(int argc, char *argv[])
 {
+
     QApplication a(argc, argv);
 
     // create db connection
@@ -19,7 +23,7 @@ int main(int argc, char *argv[])
     login.setModal(true);
     login.show();
     login.exec();
-    if (login._user.isEmpty())
+    if (CUserHandling::_current_user.isEmpty())
     {
         return EXIT_FAILURE;
     }
