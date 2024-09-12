@@ -1,5 +1,6 @@
 #include "mngroles.h"
 #include "ui_mngroles.h"
+#include "user.h"
 
 CMngRoles::CMngRoles(QWidget *parent, int roleId)
     : QDialog(parent)
@@ -38,7 +39,7 @@ CMngRoles::CMngRoles(QWidget *parent, int roleId)
         ui->delBtn->setEnabled(false);
     }
 
-
+    checkPerm();
 }
 
 CMngRoles::~CMngRoles()
@@ -155,4 +156,19 @@ void CMngRoles::delRole()
     }
     this->close();
 
+}
+
+void CMngRoles::checkPerm()
+{
+    QString search_string="sysadmin";
+    if (CUserHandling::search_perm_list(search_string))
+    {
+        // sysadmin is allowed
+        return;
+    }
+    // not sysadmin -> not allowed to change anything
+    ui->roleDtextEdit->setEnabled(false);
+    ui->roleNlineEdit->setEnabled(false);
+    ui->saveBtn->setEnabled(false);
+    ui->delBtn->setEnabled(false);
 }

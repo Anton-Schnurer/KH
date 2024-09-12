@@ -1,5 +1,6 @@
 #include "mngcase.h"
 #include "ui_mngcase.h"
+#include "user.h"
 
 CMngCase::CMngCase(QWidget *parent, int caseId)
     : QDialog(parent)
@@ -23,9 +24,12 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
     supmodel = new QStandardItemModel();
 
     // fill the combo boxes
-    // todo: where-clause so only staff that is allowed as supervisor is shown
+    // where-clause shows only staff that is allowed to supervise cases
 
-    QSqlQuery querysup("select StaffID, StaffLastName, StaffFirstName from Staff");
+    QSqlQuery querysup("select StaffID, StaffLastName, StaffFirstName from Staff \
+                        join StaffRoles on SRStaffFK=StaffID \
+                        join Roles on SRRolesFK=RoleID \
+                        where RoleName in ('doctor', 'nurse')");
     while(querysup.next())
     {
         // entry for combo box
@@ -76,7 +80,7 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
         ui->delBtn->setEnabled(false);
     }
 
-
+    checkRole();
 }
 
 CMngCase::~CMngCase()
@@ -92,12 +96,36 @@ void CMngCase::quitWin()
 
 void CMngCase::save()
 {
+
     // insert or update
 
     // check combobox patient
     int currentindex = ui->patientIdComboBox->currentIndex();
     QVariant variant = ui->patientIdComboBox->itemData(currentindex);
     int patientid = variant.toInt();
+
+    // check if all fields are filled
+    if (patientid == 0 ||
+        ui->start_dateTimeEdit->text().isEmpty() ||
+        ui->end_dateTimeEdit->text().isEmpty() ||
+        ui->caseDtextEdit->toPlainText().isEmpty() ||
+        supervisors.isEmpty())
+    {
+        QMessageBox msg;
+        msg.setText("All fields must be filled");
+        msg.setWindowTitle("Warning");
+        msg.addButton("Ok", QMessageBox::YesRole);
+        msg.exec();
+        return;
+    }
+    // todo: check if the dates make sense (start at current time or in the past, end at current time or in the future)
+    //
+    //
+
+    bool transaction=true;
+    QSqlQuery trans;
+    trans.prepare("begin transaction");
+    trans.exec();
 
     // save the changes
 
@@ -113,21 +141,21 @@ void CMngCase::save()
         queryinsert.bindValue(":cend", ui->end_dateTimeEdit->text());
         queryinsert.bindValue(":cdesc", ui->caseDtextEdit->toPlainText());
 
-        qDebug() << queryinsert.boundValues();
+        //qDebug() << queryinsert.boundValues();
 
         if (!queryinsert.exec())
         {
-            qDebug() << queryinsert.executedQuery();
+            //qDebug() << queryinsert.executedQuery();
 
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
             msg.addButton("Ok", QMessageBox::YesRole);
             msg.exec();
-            this->close();
+            transaction=false;
         }
         // lastInsertId gets the generated primary key from the database
-        _CaseId = queryinsert.lastInsertId().toInt();
+        if (transaction) _CaseId = queryinsert.lastInsertId().toInt();
     }
     else
     {
@@ -152,27 +180,35 @@ void CMngCase::save()
             msg.setWindowTitle("Error");
             msg.addButton("Ok", QMessageBox::YesRole);
             msg.exec();
+            transaction=false;
         }
     }
     // fill the supervisors intermediate tables StaffCase
-    saveSupervisors(_CaseId);
+    if (transaction)
+    {
+        if (!saveSupervisors(_CaseId))
+        {
+            transaction=false;
+        }
+    }
+    if (transaction)
+    {
+        trans.prepare("commit");
+        trans.exec();
+    }
+    else
+    {
+        trans.prepare("rollback");
+        trans.exec();
+    }
     this->close();
 }
 
 void CMngCase::delCase()
 {
-    if (_CaseId == 0)
-    {
-        // should not be possible because delete button only available in case of an edit
-        QMessageBox msg;
-        msg.setText("Delete with no Case selected");
-        msg.setWindowTitle("Error");
-        msg.addButton("Ok", QMessageBox::YesRole);
-        msg.exec();
-        return;
-    }
-    // delete the selected Case (only under certain conditions) and data in intermediate tables StaffCase
-    // implement check if Case has an end date in the past -> prevent deletion
+
+    // todo:  delete the selected Case (only under certain conditions) and data in intermediate tables StaffCase
+    // todo: implement check if Case has an end date in the past -> prevent deletion
 
     // ask if deletion is really intended
     QMessageBox msg;
@@ -182,25 +218,53 @@ void CMngCase::delCase()
     msg.setDefaultButton(QMessageBox::Yes);
     QAbstractButton *but = msg.button(QMessageBox::Yes);
     but->setText("Ok");
+
     if (msg.exec() == QMessageBox::Yes)
     {
         // delete data in intermediate table StaffCase
-        QSqlQuery delStaffCase("delete from StaffCase where SCCaseFK="+QString::number(_CaseId));
-        if (!delStaffCase.next())
+        bool transaction=true;
+        QSqlQuery trans;
+        trans.prepare("begin transaction");
+        trans.exec();
+
+        QSqlQuery delStaffCase;
+        delStaffCase.prepare("delete from StaffCase where SCCaseFK="+QString::number(_CaseId));
+        if (!delStaffCase.exec())
         {
             // something went wrong with delete
-            // there should always be at least one entry in StaffPerm for any Staff
+            // there should always be at least one supervisor for a given case
+            transaction=false;
         }
 
-        // delete the specific staff member
-        QSqlQuery delCase("delete from 'Case' where CaseID="+QString::number(_CaseId));
-        if (!delCase.next())
+        if (transaction) {
+            // delete the specific staff member
+            QSqlQuery delCase;
+            delCase.prepare("delete from 'Case' where CaseID="+QString::number(_CaseId));
+            if (!delCase.exec())
+            {
+                // something went wrong with delete
+                transaction=false;
+            }
+        }
+
+        if (transaction)
         {
-            // something went wrong with delete
+            trans.prepare("commit");
+            trans.exec();
+        }
+        else
+        {
+            trans.prepare("rollback");
+            trans.exec();
+
+            QMessageBox msg;
+            msg.setText("Error during delete");
+            msg.setWindowTitle("Error");
+            msg.addButton("Ok", QMessageBox::YesRole);
+            msg.exec();
         }
     }
     this->close();
-
 }
 
 void CMngCase::newSup()
@@ -245,6 +309,22 @@ void CMngCase::delSup()
         fillTableFromSup();
     }
 
+}
+
+void CMngCase::checkRole()
+{
+    // check user if allowed to create/edit/delete case and assign supervisors
+    QString search_string="default";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // only allowed to view data
+        ui->delBtn->setDisabled(true);
+        ui->saveBtn->setDisabled(true);
+        ui->patientIdComboBox->setDisabled(true);
+        ui->start_dateTimeEdit->setDisabled(true);
+        ui->end_dateTimeEdit->setDisabled(true);
+        ui->caseDtextEdit->setDisabled(true);
+    }
 }
 
 void CMngCase::fillSup(int caseid)
@@ -293,7 +373,7 @@ void CMngCase::fillTableFromSup()
 
 }
 
-void CMngCase::saveSupervisors(int caseid)
+bool CMngCase::saveSupervisors(int caseid)
 {
     // save supervisors in intermediate table StaffCase
     //
@@ -312,7 +392,10 @@ void CMngCase::saveSupervisors(int caseid)
             insert.prepare("insert into StaffCase (SCCaseFK, SCStaffFK) values (:caseid,:staffid)");
             insert.bindValue(":staffid", staffid);
             insert.bindValue(":caseid", caseid);
-            insert.exec();
+            if (!insert.exec())
+            {
+                return false;
+            }
         }
     }
 
@@ -332,9 +415,13 @@ void CMngCase::saveSupervisors(int caseid)
             del.prepare("delete from StaffCase where SCStaffFK = :staffid and SCCaseFK = :caseid");
             del.bindValue(":staffid", staffid);
             del.bindValue(":caseid", caseid);
-            del.exec();
+            if (!del.exec())
+            {
+                return false;
+            }
 
         }
     }
+    return true;
 
 }

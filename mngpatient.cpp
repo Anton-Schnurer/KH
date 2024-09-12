@@ -1,5 +1,6 @@
 #include "mngpatient.h"
 #include "ui_mngpatient.h"
+#include "user.h"
 
 CMngPatient::CMngPatient(QWidget *parent, int patientId)
     : QDialog(parent)
@@ -36,6 +37,7 @@ CMngPatient::CMngPatient(QWidget *parent, int patientId)
         ui->delBtn->setEnabled(false);
     }
 
+    checkRole();
 }
 
 CMngPatient::~CMngPatient()
@@ -50,7 +52,22 @@ void CMngPatient::quitWin()
 
 void CMngPatient::save()
 {
-    // save the changes
+    // save the
+
+    // check if all fields are filled
+
+    if (ui->firstnLineEdit->text().isEmpty() ||
+        ui->lastnLineEdit->text().isEmpty() ||
+        ui->SSNLineEdit->text().isEmpty() ||
+        ui->phonenLineEdit->text().isEmpty())
+    {
+        QMessageBox msg;
+        msg.setText("All fields must be filled");
+        msg.setWindowTitle("Warning");
+        msg.addButton("Ok", QMessageBox::YesRole);
+        msg.exec();
+        return;
+    }
 
     if (_PatientId == 0)
     {
@@ -111,20 +128,8 @@ void CMngPatient::save()
 void CMngPatient::delPatient()
 {
     // delete only patients that are not connected to cases
-    // check role if permitted to delete
-
-    if (_PatientId == 0)
-    {
-        // should not be possible because delete button only available in case of an edit
-        QMessageBox msg;
-        msg.setText("Delete with no patient selected");
-        msg.setWindowTitle("Error");
-        msg.addButton("Ok", QMessageBox::YesRole);
-        msg.exec();
-        return;
-    }
-    // delete the selected patient (only under certain conditions)
     // implement check if patient is connected to any cases (Case-CPatientFK) and prevent deletion in that case
+
     QSqlQuery queryone("select * from Case where CPatientFK="+ QString::number(_PatientId));
     if (queryone.next())
     {
@@ -156,4 +161,20 @@ void CMngPatient::delPatient()
     }
     this->close();
 
+}
+
+void CMngPatient::checkRole()
+{
+    // check if user is allowed to insert/update/delete
+    QString search_string="default";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // only allowed to view data
+        ui->firstnLineEdit->setDisabled(true);
+        ui->lastnLineEdit->setDisabled(true);
+        ui->SSNLineEdit->setDisabled(true);
+        ui->phonenLineEdit->setDisabled(true);
+        ui->saveBtn->setDisabled(true);
+        ui->delBtn->setDisabled(true);
+    }
 }

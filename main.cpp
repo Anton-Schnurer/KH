@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     login.show();
     login.exec();
     if (CUserHandling::_current_user.isEmpty())
+    //if (UserHandling._current_user.isEmpty())
     {
         return EXIT_FAILURE;
     }

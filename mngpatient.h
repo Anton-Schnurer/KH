@@ -22,6 +22,7 @@ public slots:
     void quitWin();
     void save();
     void delPatient();
+    void checkRole();
 
 
 private:

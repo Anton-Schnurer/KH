@@ -23,6 +23,7 @@ public slots:
     void newCase();
     void editCase(const QModelIndex &index);
     void search();
+    void checkRole();
 
 
 private:

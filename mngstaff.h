@@ -8,6 +8,7 @@
 #include <QCryptographicHash>
 
 
+
 namespace Ui {
 class CMngStaff;
 }
@@ -32,6 +33,7 @@ public slots:
 private:
     Ui::CMngStaff *ui;
     int _StaffId;
+    QString _orig_pwd;
     QStandardItemModel *permmodel;
     QStandardItemModel *rolemodel;
     QList<int> permissions;
@@ -41,8 +43,10 @@ private:
     void fillRole(int staffid);
     void fillTableFromPerm();
     void fillTableFromRole();
-    void savePermissions(int staffid);
-    void saveRoles(int staffid);
+    bool savePermissions(int staffid);
+    bool saveRoles(int staffid);
+    void checkPerm();
+    void checkRole();
 
 };
 

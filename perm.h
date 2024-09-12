@@ -23,7 +23,7 @@ public slots:
     void newPerm();
     void editPerm(const QModelIndex &index);
     void search();
-
+    void checkPerm();
 
 
 private:

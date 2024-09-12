@@ -4,7 +4,11 @@
 #include <QMessageBox>
 
 // make static variable and lists known
+
+//CUserHandling UserHandling;
+
 QString CUserHandling::_current_user;
+int CUserHandling::_current_staffid;
 QList<QString> CUserHandling::_perm_list;
 QList<QString> CUserHandling::_role_list;
 
@@ -43,12 +47,21 @@ void CLogin::login()
     // check if a record exists
     if (sql.next())
     {
-        CUserHandling::_current_user=user;          // set current username
-        CUserHandling::fill_perm_list();            // fill list of permissions for this user
-        CUserHandling::fill_role_list();            // fill list of roles for this user
+        CUserHandling::_current_staffid=sql.value(0).toInt();   // set current staffid
+        CUserHandling::_current_user=user;                      // set current username
+        CUserHandling::fill_perm_list();                        // fill list of permissions for this user
+        CUserHandling::fill_role_list();                        // fill list of roles for this user
 
-        qDebug() << CUserHandling::_perm_list;
-        qDebug() << CUserHandling::_role_list;
+        //qDebug() << CUserHandling::_perm_list;
+        //qDebug() << CUserHandling::_role_list;
+
+        //UserHandling._current_staffid=sql.value(0).toInt();   // set current staffid
+        //UserHandling._current_user=user;                      // set current username
+        //UserHandling.fill_perm_list();                        // fill list of permissions for this user
+        //UserHandling.fill_role_list();                        // fill list of roles for this user
+
+        //qDebug() << UserHandling._perm_list;
+        //qDebug() << UserHandling._role_list;
     }
     else
     {
@@ -60,14 +73,13 @@ void CLogin::login()
         msg.addButton("Ok", QMessageBox::YesRole);
         msg.exec();
         CUserHandling::_current_user=NULL;
+        CUserHandling::_current_staffid=0;
+        //UserHandling._current_user=NULL;
+        //UserHandling._current_staffid=0;
     }
 
 
-    //if (user == "sysadmin" && passhash == "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4")
-    //{
-    //    // ueberpruefung ist okay
-    //    _user = user;
-    //}
+    //"03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
     cancel();
 }
 

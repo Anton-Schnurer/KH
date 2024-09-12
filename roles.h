@@ -23,6 +23,7 @@ public slots:
     void newRole();
     void editRole(const QModelIndex &index);
     void search();
+    void checkPerm();
 
 
 private:

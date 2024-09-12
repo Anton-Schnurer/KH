@@ -8,13 +8,15 @@
 struct CUserHandling
 {
 
-    // constructor legt leere listen an für permission, roles, initialisiert username mit blank
+
     static QString _current_user;
+    static int _current_staffid;
     static QList<QString> _perm_list;
     static QList<QString> _role_list;
 
     CUserHandling()
     {
+        _current_staffid=0;
         _current_user=NULL;
         _perm_list.clear();
         _role_list.clear();
@@ -25,8 +27,9 @@ struct CUserHandling
     {
         _perm_list.clear();
         QSqlQuery queryperm("select PermName from Permissions \
-                                join StaffPerm on SPStaffFK=StaffID \
-                                join Staff on StaffUser='" + _current_user + "'");
+                                join StaffPerm on SPPermFK=PermID \
+                                join Staff on StaffID=SPStaffFK \
+                                where StaffUser='" + _current_user + "'");
 
         while (queryperm.next())
         {
@@ -49,8 +52,9 @@ struct CUserHandling
     {
         _role_list.clear();
         QSqlQuery queryrole("select RoleName from Roles \
-                                join StaffRoles on SRStaffFK=StaffID \
-                                join Staff on StaffUser='" + _current_user + "'");
+                                join StaffRoles on SRRolesFK=RoleID \
+                                join Staff on StaffID=SRStaffFK \
+                                where StaffUser='" + _current_user + "'");
 
         while (queryrole.next())
         {
@@ -71,5 +75,6 @@ struct CUserHandling
 
 };
 
+//extern CUserHandling UserHandling;
 
 #endif // USER_H

@@ -1,6 +1,7 @@
 #include "staff.h"
 #include "ui_staff.h"
 #include "mngstaff.h"
+#include "user.h"
 
 CStaff::CStaff(QWidget *parent)
     : QDialog(parent)
@@ -23,6 +24,8 @@ CStaff::CStaff(QWidget *parent)
 
     sql = new QSqlQueryModel();
     sqlquery(false);
+
+    checkRole();
 }
 
 CStaff::~CStaff()
@@ -65,6 +68,21 @@ void CStaff::search()
 {
     // search button has been selected
     sqlquery(true);
+}
+
+void CStaff::checkRole()
+{
+    // check if current user is allowed to create a new staff member
+
+    // admin is allowed
+    QString search_string="admin";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        return;
+    }
+    // not admin -> not allowed to create new staff member
+    ui->newStaffBtn->setDisabled(true);
+
 }
 
 void CStaff::sqlquery(bool filter)

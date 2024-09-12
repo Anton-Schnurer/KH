@@ -1,11 +1,13 @@
 #include "mngstaff.h"
 #include "ui_mngstaff.h"
+#include "user.h"
 
 CMngStaff::CMngStaff(QWidget *parent, int staffId)
     : QDialog(parent)
     , ui(new Ui::CMngStaff)
 {
     _StaffId = staffId;
+    QString _orig_pwd=NULL;
     ui->setupUi(this);
     this->setWindowTitle("Edit/Create Staff");
 
@@ -63,6 +65,11 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
             ui->usernLineEdit->setText(queryone.value(1).toString());
             // save pwd somewhere so it can be checked later
             ui->pwdLineEdit->setText(queryone.value(2).toString());
+
+            // save current pwd in encrypted form
+
+            _orig_pwd=queryone.value(2).toString();
+
             ui->firstnLineEdit->setText(queryone.value(3).toString());
             ui->lastnLineEdit->setText(queryone.value(4).toString());
             ui->phonenLineEdit->setText(queryone.value(5).toString());
@@ -80,8 +87,8 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
         ui->delBtn->setEnabled(false);
     }
 
-    // insert logic for permissions/roles insert/delete into rolestableview+permtableview
-
+    checkPerm();        // check permissions, affects (password/username)
+    checkRole();        // check roles, affects all other fields
 }
 
 CMngStaff::~CMngStaff()
@@ -99,10 +106,33 @@ void CMngStaff::quitWin()
 void CMngStaff::save()
 {
     // save the changes
-    // decide how the password update/insert will be handled !!!!
+
+    // check if all the required fields have been filled
+    if ((ui->usernLineEdit->text().isEmpty()) ||
+        ui->pwdLineEdit->text().isEmpty() ||
+        ui->firstnLineEdit->text().isEmpty() ||
+        ui->lastnLineEdit->text().isEmpty() ||
+        ui->phonenLineEdit->text().isEmpty() ||
+        permissions.isEmpty() ||
+        roles.isEmpty())
+    {
+        // error message to fill out the data
+        QMessageBox msg;
+        msg.setText("All fields must be filled");
+        msg.setWindowTitle("Warning");
+        msg.addButton("Ok", QMessageBox::YesRole);
+        msg.exec();
+        return;
+    }
+
+    bool transaction=true;
+    QSqlQuery trans;
+    trans.prepare("begin transaction");
+    trans.exec();
 
     if (_StaffId == 0)
     {
+
         // insert new staff member
         QSqlQuery queryinsert;
         queryinsert.prepare("insert into Staff (StaffUser, StaffPWD, StaffFirstName, StaffLastName, StaffPhoneNr) \
@@ -119,21 +149,18 @@ void CMngStaff::save()
         queryinsert.bindValue(":lname", ui->lastnLineEdit->text());
         queryinsert.bindValue(":pnr", ui->phonenLineEdit->text());
 
-        // qDebug() << queryinsert.boundValues();
-
         if (!queryinsert.exec())
         {
-            qDebug() << queryinsert.executedQuery();
-
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
             msg.addButton("Ok", QMessageBox::YesRole);
             msg.exec();
-            this->close();
+            transaction=false;
+
         }
         // lastInsertId gets the generated primary key from the database
-        _StaffId = queryinsert.lastInsertId().toInt();
+        if (transaction) _StaffId = queryinsert.lastInsertId().toInt();
     }
     else
     {
@@ -150,9 +177,18 @@ void CMngStaff::save()
 
         // check if password has been changed
         // encrypt password before update IF it has been changed
+
         QString pwd = ui->pwdLineEdit->text();
-        QByteArray bytea = pwd.toUtf8();
-        QString passhash = QCryptographicHash::hash(bytea,QCryptographicHash::Sha256).toHex();
+        QString passhash;
+        if (_orig_pwd != pwd)
+        {
+            QByteArray bytea = pwd.toUtf8();
+            passhash = QCryptographicHash::hash(bytea,QCryptographicHash::Sha256).toHex();
+        }
+        else
+        {
+            passhash = ui->pwdLineEdit->text();
+        }
 
         queryupdate.bindValue(":pwd", passhash);
         queryupdate.bindValue(":fname", ui->firstnLineEdit->text());
@@ -167,26 +203,41 @@ void CMngStaff::save()
             msg.setWindowTitle("Error");
             msg.addButton("Ok", QMessageBox::YesRole);
             msg.exec();
+            transaction=false;
         }
     }
-    // fill the permissions/roles intermediate tables StaffPerm/StaffRoles
-    savePermissions(_StaffId);
-    saveRoles(_StaffId);
+    // fill the permissions/roles intermediate tables StaffPerm/StaffRole
+
+    if (transaction)
+    {
+        if (!savePermissions(_StaffId))
+        {
+            transaction=false;
+        }
+        else
+        {
+            if (!saveRoles(_StaffId))
+            {
+                transaction=false;
+            }
+        }
+    }
+
+    if (transaction)
+    {
+        trans.prepare("commit");
+        trans.exec();
+    }
+    else
+    {
+        trans.prepare("rollback");
+        trans.exec();
+    }
     this->close();
 }
 
 void CMngStaff::delStaff()
 {
-    if (_StaffId == 0)
-    {
-        // should not be possible because delete button only available in case of an edit
-        QMessageBox msg;
-        msg.setText("Delete with no staff member selected");
-        msg.setWindowTitle("Error");
-        msg.addButton("Ok", QMessageBox::YesRole);
-        msg.exec();
-        return;
-    }
     // delete the selected staff member (only under certain conditions) and data in intermediate tables StaffPerm, StaffRoles
     // implement check if staff member is connected to any cases (StaffCase) and prevent deletion in that case
     QSqlQuery queryone("select * from StaffCase where StaffID="+ QString::number(_StaffId));
@@ -210,24 +261,53 @@ void CMngStaff::delStaff()
         but->setText("Ok");
         if (msg.exec() == QMessageBox::Yes)
         {
+
             // delete data in intermediate tables StaffPerm, StaffRoles
-            QSqlQuery delStaffPerm("delete from StaffPerm where SPStaffFK="+QString::number(_StaffId));
-            if (!delStaffPerm.next())
+            bool transaction=true;
+
+            QSqlQuery trans;
+            trans.prepare("begin transaction");
+            trans.exec();
+
+            QSqlQuery delStaffPerm;
+            delStaffPerm.prepare("delete from StaffPerm where SPStaffFK="+QString::number(_StaffId));
+            if (!delStaffPerm.exec())
             {
                 // something went wrong with delete
-                // there should always be at least one entry in StaffPerm for any Staff
+                transaction=false;
             }
-            QSqlQuery delStaffRole("delete from StaffRoles where SRStaffFK="+QString::number(_StaffId));
-            if (!delStaffRole.next())
+            QSqlQuery delStaffRole;
+            delStaffRole.prepare("delete from StaffRoles where SRStaffFK="+QString::number(_StaffId));
+            if (!delStaffRole.exec())
             {
                 // something went wrong with delete
-                // there should always be at least one entry in StaffPerm for any Staff
+                transaction=false;
             }
             // delete the specific staff member
-            QSqlQuery delStaff("delete from Staff where StaffID="+QString::number(_StaffId));
-            if (!delStaff.next())
+            QSqlQuery delStaff;
+            delStaff.prepare("delete from Staff where StaffID="+QString::number(_StaffId));
+            if (!delStaff.exec())
             {
                 // something went wrong with delete
+                transaction=false;
+            }
+
+            if (transaction)
+              {
+                trans.prepare("commit");
+                trans.exec();
+            }
+            else
+            {
+                trans.prepare("rollback");
+                trans.exec();
+
+                QMessageBox msg;
+                msg.setText("Error during delete, transaction rollback");
+                msg.setWindowTitle("Error");
+                msg.addButton("Ok", QMessageBox::YesRole);
+                msg.exec();
+
             }
         }
     }
@@ -237,8 +317,6 @@ void CMngStaff::delStaff()
 void CMngStaff::newRole()
 {
     // adds a role to the selected staff member (combo box)
-    // implement check if current user is allowed to give new roles
-
     // get combobox value
     int currentindex = ui->rolesComboBox->currentIndex();
     QVariant variant = ui->rolesComboBox->itemData(currentindex);
@@ -254,8 +332,6 @@ void CMngStaff::newRole()
 void CMngStaff::delRole()
 {
     // removes a role from the selected staff member (combo box)
-    // implement check if current user is allowed to remove a role and that 1 role must be granted at least
-
     // get marked line
     int rowid = ui->rolesTableView->selectionModel()->currentIndex().row();
     // access model with line and row
@@ -266,8 +342,6 @@ void CMngStaff::delRole()
     if (index != -1)
     {
         roles.removeAt(index);
-
-        // update view
         fillTableFromRole();
     }
 }
@@ -285,7 +359,6 @@ void CMngStaff::newPerm()
     if (!permissions.contains(permid))
     {
         permissions.append(permid);
-        // update view
         fillTableFromPerm();
     }
 
@@ -306,8 +379,6 @@ void CMngStaff::delPerm()
     if (index != -1)
     {
         permissions.removeAt(index);
-
-        // update view
         fillTableFromPerm();
     }
 
@@ -397,7 +468,7 @@ void CMngStaff::fillTableFromRole()
 
 }
 
-void CMngStaff::savePermissions(int staffid)
+bool CMngStaff::savePermissions(int staffid)
 {
     //
     // query the permissions list and only insert the missing entires
@@ -415,7 +486,10 @@ void CMngStaff::savePermissions(int staffid)
             insert.prepare("insert into StaffPerm (SPStaffFK, SPPermFK) values (:staffid,:permid)");
             insert.bindValue(":staffid", staffid);
             insert.bindValue(":permid", permid);
-            insert.exec();
+            if (!insert.exec())
+            {
+                return false;
+            }
         }
     }
 
@@ -435,14 +509,17 @@ void CMngStaff::savePermissions(int staffid)
             del.prepare("delete from StaffPerm where SPStaffFK = :staffid and SPPermFK = :permid");
             del.bindValue(":staffid", staffid);
             del.bindValue(":permid", permid);
-            del.exec();
+            if (!del.exec())
+            {
+                return false;
+            }
 
         }
     }
-
+    return true;
 }
 
-void CMngStaff::saveRoles(int staffid)
+bool CMngStaff::saveRoles(int staffid)
 {
     //
     // query the roles list and only insert the missing entires
@@ -460,7 +537,10 @@ void CMngStaff::saveRoles(int staffid)
             insert.prepare("insert into StaffRoles (SRStaffFK, SRRolesFK) values (:staffid,:roleid)");
             insert.bindValue(":staffid", staffid);
             insert.bindValue(":roleid", roleid);
-            insert.exec();
+            if (!insert.exec())
+            {
+                return false;
+            }
         }
     }
 
@@ -480,9 +560,70 @@ void CMngStaff::saveRoles(int staffid)
             del.prepare("delete from StaffRoles where SRStaffFK = :staffid and SRRolesFK = :roleid");
             del.bindValue(":staffid", staffid);
             del.bindValue(":roleid", roleid);
-            del.exec();
+            if (!del.exec())
+            {
+                return false;
+            }
 
         }
     }
+    return true;
+}
+
+void CMngStaff::checkPerm()
+{
+    // depending on the permissions of the user certain elements of the UI will be disabled
+
+    // sysadmin can change username and password
+    QString search_string="sysadmin";
+    if (CUserHandling::search_perm_list(search_string))
+    {
+        ui->pwdLineEdit->setEnabled(true);
+        ui->usernLineEdit->setEnabled(true);
+        return;
+    }
+    // standard permission allowed to change own password
+    search_string="standard";
+    if ((CUserHandling::search_perm_list(search_string)) && (CUserHandling::_current_staffid == _StaffId))
+    {
+        ui->usernLineEdit->setDisabled(true);
+        ui->pwdLineEdit->setEnabled(true);
+        return;
+    }
+    // disable the password entry field + username
+    ui->pwdLineEdit->setDisabled(true);
+    ui->usernLineEdit->setDisabled(true);
+}
+
+void CMngStaff::checkRole()
+{
+    // depending on the role of the user certain elements of the UI will be disabled
+    QString search_string="admin";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // admin is allowed everything in staffmember
+        return;
+    }
+    search_string="default";
+    if ((CUserHandling::search_role_list(search_string)) && (CUserHandling::_current_staffid == _StaffId))
+    {
+        // default is allowed to change own data except add/remove permissions/roles
+        ui->addPermBtn->setDisabled(true);
+        ui->delPermBtn->setDisabled(true);
+        ui->addRoleBtn->setDisabled(true);
+        ui->delRoleBtn->setDisabled(true);
+        ui->delBtn->setDisabled(true);
+        return;
+    }
+    // everyone else only allowed to view data
+    ui->firstnLineEdit->setDisabled(true);
+    ui->lastnLineEdit->setDisabled(true);
+    ui->phonenLineEdit->setDisabled(true);
+    ui->addPermBtn->setDisabled(true);
+    ui->delPermBtn->setDisabled(true);
+    ui->addRoleBtn->setDisabled(true);
+    ui->delRoleBtn->setDisabled(true);
+    ui->delBtn->setDisabled(true);
+    ui->saveBtn->setDisabled(true);
 
 }

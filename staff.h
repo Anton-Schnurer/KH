@@ -22,6 +22,7 @@ public slots:
     void newStaff();
     void editStaff(const QModelIndex &index);
     void search();
+    void checkRole();
 
 private:
     Ui::CStaff *ui;

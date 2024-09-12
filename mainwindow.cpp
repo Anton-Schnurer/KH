@@ -15,6 +15,7 @@ CMainWindow::CMainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("Hospital Management --- user: "+CUserHandling::_current_user);
+    //this->setWindowTitle("Hospital Management --- user: "+UserHandling._current_user);
 
     // manages Staff in drop-down menue and the button
     QObject::connect(ui->manageStaff, SIGNAL(clicked()), SLOT(manageStaff()));
@@ -108,9 +109,11 @@ void CMainWindow::changeUser()
     login.show();
     login.exec();
     if (CUserHandling::_current_user.isEmpty())
+    //if (UserHandling._current_user.isEmpty())
     {
         quitWin();
     }
     this->setWindowTitle("Hospital Management --- user: "+CUserHandling::_current_user);
+    //this->setWindowTitle("Hospital Management --- user: "+UserHandling._current_user);
 
 }

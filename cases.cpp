@@ -1,6 +1,7 @@
 #include "cases.h"
 #include "ui_cases.h"
 #include "mngcase.h"
+#include "user.h"
 
 CCases::CCases(QWidget *parent)
     : QDialog(parent)
@@ -24,6 +25,7 @@ CCases::CCases(QWidget *parent)
     sql = new QSqlQueryModel();
     sqlquery(false);
 
+    checkRole();
 }
 
 CCases::~CCases()
@@ -67,6 +69,17 @@ void CCases::search()
 
     sqlquery(true);
 
+}
+
+void CCases::checkRole()
+{
+    // check if user is allowed to create a new case
+    QString search_string="default";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // not allowed to create new case
+        ui->newCaseBtn->setDisabled(true);
+    }
 }
 
 void CCases::sqlquery(bool filter)

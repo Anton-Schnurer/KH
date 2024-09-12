@@ -1,6 +1,7 @@
 #include "roles.h"
 #include "ui_roles.h"
 #include "mngroles.h"
+#include "user.h"
 
 CRoles::CRoles(QWidget *parent)
     : QDialog(parent)
@@ -24,7 +25,7 @@ CRoles::CRoles(QWidget *parent)
     sql = new QSqlQueryModel();
     sqlquery(false);
 
-
+    checkPerm();
 }
 
 CRoles::~CRoles()
@@ -68,6 +69,18 @@ void CRoles::search()
 {
     // search button has been selected
     sqlquery(true);
+}
+
+void CRoles::checkPerm()
+{
+    QString search_string="sysadmin";
+    if (CUserHandling::search_perm_list(search_string))
+    {
+        // only sysadmins can create new entries
+        return;
+    }
+    // not sysadmin -> not allowed to create new entry
+    ui->newRBtn->setEnabled(false);
 }
 
 void CRoles::sqlquery(bool filter)

@@ -1,6 +1,7 @@
 #include "patient.h"
 #include "ui_patient.h"
 #include "mngpatient.h"
+#include "user.h"
 
 CPatient::CPatient(QWidget *parent)
     : QDialog(parent)
@@ -23,6 +24,8 @@ CPatient::CPatient(QWidget *parent)
 
     sql = new QSqlQueryModel();
     sqlquery(false);
+
+    checkRole();
 }
 
 
@@ -68,6 +71,19 @@ void CPatient::search()
 {
     // search button has been selected
     sqlquery(true);
+}
+
+void CPatient::checkRole()
+{
+    // check if user is allowed to create a new patient
+    QString search_string="default";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // not allowed
+        ui->newPatientBtn->setDisabled(true);
+        return;
+    }
+
 }
 
 void CPatient::sqlquery(bool filter)

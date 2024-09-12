@@ -23,6 +23,7 @@ public slots:
     void newPatient();
     void editPatient(const QModelIndex &index);
     void search();
+    void checkRole();
 
 
 

@@ -1,5 +1,6 @@
 #include "mngperm.h"
 #include "ui_mngperm.h"
+#include "user.h"
 
 CMngPerm::CMngPerm(QWidget *parent, int permId)
     : QDialog(parent)
@@ -38,7 +39,7 @@ CMngPerm::CMngPerm(QWidget *parent, int permId)
         ui->delBtn->setEnabled(false);
     }
 
-
+    checkPerm();
 }
 
 CMngPerm::~CMngPerm()
@@ -154,4 +155,19 @@ void CMngPerm::delPerm()
     }
     this->close();
 
+}
+
+void CMngPerm::checkPerm()
+{
+    QString search_string="sysadmin";
+    if (CUserHandling::search_perm_list(search_string))
+    {
+        // sysadmin is allowed
+        return;
+    }
+    // not sysadmin -> not allowed to change anything
+    ui->permDtextEdit->setEnabled(false);
+    ui->permNlineEdit->setEnabled(false);
+    ui->saveBtn->setEnabled(false);
+    ui->delBtn->setEnabled(false);
 }

@@ -22,6 +22,7 @@ public slots:
     void quitWin();
     void save();
     void delPerm();
+    void checkPerm();
 
 private:
     Ui::CMngPerm *ui;

@@ -1,6 +1,7 @@
 #include "perm.h"
 #include "ui_perm.h"
 #include "mngperm.h"
+#include "user.h"
 
 CPerm::CPerm(QWidget *parent)
     : QDialog(parent)
@@ -24,6 +25,7 @@ CPerm::CPerm(QWidget *parent)
     sql = new QSqlQueryModel();
     sqlquery(false);
 
+    checkPerm();
 }
 
 CPerm::~CPerm()
@@ -70,6 +72,18 @@ void CPerm::search()
     // search button has been selected
     sqlquery(true);
 
+}
+
+void CPerm::checkPerm()
+{
+    QString search_string="sysadmin";
+    if (CUserHandling::search_perm_list(search_string))
+    {
+        // only sysadmins can create new entries
+        return;
+    }
+    // not sysadmin -> not allowed to create new entry
+    ui->newPBtn->setEnabled(false);
 }
 
 void CPerm::sqlquery(bool filter)

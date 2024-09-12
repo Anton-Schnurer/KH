@@ -22,6 +22,7 @@ public slots:
     void quitWin();
     void save();
     void delRole();
+    void checkPerm();
 
 
 private:

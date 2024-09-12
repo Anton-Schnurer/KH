@@ -26,6 +26,7 @@ public slots:
     void delCase();
     void newSup();
     void delSup();
+    void checkRole();
 
 
 
@@ -38,7 +39,7 @@ private:
 
     void fillSup(int caseid);
     void fillTableFromSup();
-    void saveSupervisors(int caseid);
+    bool saveSupervisors(int caseid);
 
 };
 
