@@ -49,11 +49,19 @@ CMainWindow::CMainWindow(QWidget *parent)
     QObject::connect(ui->changeUser, SIGNAL(clicked()), SLOT(changeUser()));
     QObject::connect(ui->actionChange_User, SIGNAL(triggered()), SLOT(changeUser()));
 
+    // Manages the search button + field
+    QObject::connect(ui->searchBtn, SIGNAL(clicked()), SLOT(search()));
+
+
+    sql = new QSqlQueryModel();
+    sqlquery(false);
+
 }
 
 CMainWindow::~CMainWindow()
 {
     delete ui;
+    delete sql;
 }
 
 void CMainWindow::manageStaff()
@@ -115,5 +123,42 @@ void CMainWindow::changeUser()
     }
     this->setWindowTitle("Hospital Management --- user: "+CUserHandling::_current_user);
     //this->setWindowTitle("Hospital Management --- user: "+UserHandling._current_user);
+
+}
+
+void CMainWindow::search()
+{
+    sqlquery(true);
+}
+
+void CMainWindow::sqlquery(bool filter)
+{
+    QString query = _casetreestr;
+
+    if (filter)
+    {
+        QString name = ui->searchText->text();
+        if (!name.isEmpty())
+        {
+            query += " where PatientLastName like '%" + name + "%' or PatientFirstName like '%" + name + "%'";
+        }
+    }
+    // query += " group by PermID";
+
+    sql->setQuery(query);
+
+    sql->setHeaderData(0, Qt::Horizontal, "Last Name");
+    sql->setHeaderData(1, Qt::Horizontal, "First Name");
+    sql->setHeaderData(2, Qt::Horizontal, "Case Id");
+    sql->setHeaderData(3, Qt::Horizontal, "Case Start");
+    sql->setHeaderData(4, Qt::Horizontal, "Case End");
+    sql->setHeaderData(5, Qt::Horizontal, "Description");
+
+
+    // Zuweisung zur Table
+    ui->treeView->setModel(sql);
+    // Verschönerung
+    ui->treeView->setAlternatingRowColors(true);
+    //ui->treeView->hideColumn(0);                   // hides the id column
 
 }

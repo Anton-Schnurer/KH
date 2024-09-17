@@ -7,7 +7,7 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
     , ui(new Ui::CMngStaff)
 {
     _StaffId = staffId;
-    QString _orig_pwd=NULL;
+    _orig_pwd=NULL;
     ui->setupUi(this);
     this->setWindowTitle("Edit/Create Staff");
 
@@ -180,6 +180,10 @@ void CMngStaff::save()
 
         QString pwd = ui->pwdLineEdit->text();
         QString passhash;
+
+        qDebug() << "_orig_pwd:" << _orig_pwd;
+        qDebug() << "pwd:" << pwd;
+
         if (_orig_pwd != pwd)
         {
             QByteArray bytea = pwd.toUtf8();

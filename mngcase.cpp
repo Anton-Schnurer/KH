@@ -65,8 +65,12 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
             int entry = ui->patientIdComboBox->findData(fk);      // findData searches in key value column of the comboBox
             ui->patientIdComboBox->setCurrentIndex(entry);
 
-            ui->start_dateTimeEdit->setDate(queryone.value(2).toDate());
-            ui->end_dateTimeEdit->setDate(queryone.value(3).toDate());
+            qDebug() << queryone.value(2).toString();
+            qDebug() << queryone.value(3).toString();
+
+            // String from Database needs to be converted to QDateTime dd: day(1-31), MM month (1-12), yyyy year, HH hours (24h), mm minutes
+            ui->start_dateTimeEdit->setDateTime(QDateTime::fromString(queryone.value(2).toString(),"dd/MM/yyyy HH:mm"));
+            ui->end_dateTimeEdit->setDateTime(QDateTime::fromString(queryone.value(3).toString(),"dd/MM/yyyy HH:mm"));
             ui->caseDtextEdit->setText(queryone.value(4).toString());
         }
         // fill out current supervisors
@@ -76,6 +80,11 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
     }
     else
     {
+        // fill startdatetime field with current time and enddatetime field with current time + 1 hour
+        ui->start_dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+        ui->end_dateTimeEdit->setDateTime(QDateTime::currentDateTime().addSecs(3600));
+
+
         // disable the delete button for new entry
         ui->delBtn->setEnabled(false);
     }
@@ -118,9 +127,18 @@ void CMngCase::save()
         msg.exec();
         return;
     }
-    // todo: check if the dates make sense (start at current time or in the past, end at current time or in the future)
+    // check if the dates make sense (start before end)
     //
-    //
+    if (ui->start_dateTimeEdit->dateTime() > ui->end_dateTimeEdit->dateTime())
+    {
+        // start date not allowed to be after end date
+        QMessageBox msg;
+        msg.setText("End Date not allowed to be before Start Date");
+        msg.setWindowTitle("Warning");
+        msg.addButton("Ok", QMessageBox::YesRole);
+        msg.exec();
+        return;
+    }
 
     bool transaction=true;
     QSqlQuery trans;
@@ -132,6 +150,18 @@ void CMngCase::save()
     if (_CaseId == 0)
     {
         // insert new case
+
+        // check if end date makes sense
+        if (ui->end_dateTimeEdit->dateTime() < QDateTime::currentDateTime())
+        {
+            QMessageBox msg;
+            msg.setText("End Date not allowed to be in the past");
+            msg.setWindowTitle("Warning");
+            msg.addButton("Ok", QMessageBox::YesRole);
+            msg.exec();
+            return;
+        }
+
         QSqlQuery queryinsert;
         queryinsert.prepare("insert into 'Case' (CPatientFK, CaseStart, CaseEnd, CaseDesc) \
                                         values (:patientid, :cstart, :cend, :cdesc)");
@@ -207,13 +237,23 @@ void CMngCase::save()
 void CMngCase::delCase()
 {
 
-    // todo:  delete the selected Case (only under certain conditions) and data in intermediate tables StaffCase
-    // todo: implement check if Case has an end date in the past -> prevent deletion
+    // delete the selected Case (only under certain conditions) and data in intermediate tables StaffCase
+
+    if (ui->end_dateTimeEdit->dateTime() < QDateTime::currentDateTime())
+    {
+        // case has end date in the past -> prevent deletion
+        QMessageBox msg;
+        msg.setText("Cannot delete Case that already ended");
+        msg.setWindowTitle("Error");
+        msg.addButton("Ok", QMessageBox::YesRole);
+        msg.exec();
+        return;
+    }
 
     // ask if deletion is really intended
     QMessageBox msg;
     msg.setText("ARE YOU SURE?");
-    msg.setWindowTitle("Delete Staff");
+    msg.setWindowTitle("Delete Case");
     msg.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
     msg.setDefaultButton(QMessageBox::Yes);
     QAbstractButton *but = msg.button(QMessageBox::Yes);

@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QModelIndex>
+#include <QSqlQueryModel>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,8 +28,15 @@ public slots:
     void managePerm();
     void quitWin();
     void changeUser();
+    void search();
 
 private:
     Ui::CMainWindow *ui;
+    QSqlQueryModel *sql;
+    void sqlquery(bool filter);
+    QString _casetreestr = "select PatientLastName, PatientFirstName, CaseID, CaseStart, CaseEnd, CaseDesc \
+        from 'Case' \
+        join Patient on CPatientFK = PatientID";
+
 };
 #endif // MAINWINDOW_H
