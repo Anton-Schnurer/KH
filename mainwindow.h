@@ -1,9 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QSqlQueryModel>
+#include <QStandardItemModel>
 
 
 QT_BEGIN_NAMESPACE
@@ -33,10 +33,14 @@ public slots:
 private:
     Ui::CMainWindow *ui;
     QSqlQueryModel *sql;
+    QStandardItemModel *treesql;
     void sqlquery(bool filter);
-    QString _casetreestr = "select PatientLastName, PatientFirstName, CaseID, CaseStart, CaseEnd, CaseDesc \
+    QString _casetreestr = "select PatientID, PatientLastName, PatientFirstName, CaseStart, CaseEnd, \
+        group_concat(StaffUser) as supervisor, CaseDesc \
         from 'Case' \
-        join Patient on CPatientFK = PatientID";
+        join Patient on CPatientFK = PatientID \
+        join StaffCase on SCCaseFK = CaseID \
+        join Staff on SCStaffFK = StaffID";
 
 };
 #endif // MAINWINDOW_H
