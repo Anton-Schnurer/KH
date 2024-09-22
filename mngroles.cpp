@@ -65,12 +65,8 @@ void CMngRoles::save()
         queryinsert.bindValue(":name", ui->roleNlineEdit->text());
         queryinsert.bindValue(":desc", ui->roleDtextEdit->toPlainText());
 
-        // qDebug() << queryinsert.boundValues();
-
         if (!queryinsert.exec())
         {
-            // qDebug() << queryinsert.executedQuery();
-
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
@@ -111,20 +107,7 @@ void CMngRoles::delRole()
 {
 
     // delete only roles that are not connected to staff members
-    // check user permission if permitted to delete
-
-    if (_RoleId == 0)
-    {
-        // should not be possible because delete button only available in case of an edit
-        QMessageBox msg;
-        msg.setText("Delete with no role selected");
-        msg.setWindowTitle("Error");
-        msg.addButton("Ok", QMessageBox::YesRole);
-        msg.exec();
-        return;
-    }
     // delete the selected role (only under certain conditions)
-    // implement check if role is connected to any staff members (StaffRoles-SRRolesFK) and prevent deletion in that case
     QSqlQuery queryone("select * from StaffRoles where SRRolesFK="+ QString::number(_RoleId));
     if (queryone.next())
     {
@@ -147,10 +130,17 @@ void CMngRoles::delRole()
         if (msg.exec() == QMessageBox::Yes)
         {
             // delete the specific permission
-            QSqlQuery delRole("delete from Roles where RoleID="+QString::number(_RoleId));
-            if (!delRole.next())
+            QSqlQuery delRole;
+            delRole.prepare("delete from Roles where RoleID= :roleid");
+            delRole.bindValue(":roleid", QString::number(_RoleId));
+            if (!delRole.exec())
             {
                 // something went wrong with delete
+                QMessageBox msg;
+                msg.setText("Error during delete");
+                msg.setWindowTitle("Error");
+                msg.addButton("Ok", QMessageBox::YesRole);
+                msg.exec();
             }
         }
     }

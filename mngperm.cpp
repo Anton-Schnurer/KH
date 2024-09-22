@@ -109,19 +109,6 @@ void CMngPerm::save()
 
 void CMngPerm::delPerm()
 {
-    // delete only permissions that are not connected to staff members
-    // check user permission if permitted to delete
-
-    if (_PermId == 0)
-    {
-        // should not be possible because delete button only available in case of an edit
-        QMessageBox msg;
-        msg.setText("Delete with no permission selected");
-        msg.setWindowTitle("Error");
-        msg.addButton("Ok", QMessageBox::YesRole);
-        msg.exec();
-        return;
-    }
     // delete the selected permission (only under certain conditions)
     // implement check if permission is connected to any staffmembers (StaffPerm-SPPermFK) and prevent deletion in that case
     QSqlQuery queryone("select * from StaffPerm where SPPermFK="+ QString::number(_PermId));
@@ -146,10 +133,17 @@ void CMngPerm::delPerm()
         if (msg.exec() == QMessageBox::Yes)
         {
             // delete the specific permission
-            QSqlQuery delPerm("delete from Permissions where PermID="+QString::number(_PermId));
-            if (!delPerm.next())
+            QSqlQuery delPerm;
+            delPerm.prepare("delete from Permissions where PermID= :permid");
+            delPerm.bindValue(":permid", QString::number(_PermId));
+            if (!delPerm.exec())
             {
                 // something went wrong with delete
+                QMessageBox msg;
+                msg.setText("Error during delete");
+                msg.setWindowTitle("Error");
+                msg.addButton("Ok", QMessageBox::YesRole);
+                msg.exec();
             }
         }
     }
@@ -162,7 +156,7 @@ void CMngPerm::checkPerm()
     QString search_string="sysadmin";
     if (CUserHandling::search_perm_list(search_string))
     {
-        // sysadmin is allowed
+        // only sysadmin is allowed
         return;
     }
     // not sysadmin -> not allowed to change anything

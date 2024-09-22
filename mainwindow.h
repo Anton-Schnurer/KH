@@ -3,7 +3,6 @@
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QSqlQueryModel>
-#include <QStandardItemModel>
 
 
 QT_BEGIN_NAMESPACE
@@ -33,7 +32,6 @@ public slots:
 private:
     Ui::CMainWindow *ui;
     QSqlQueryModel *sql;
-    QStandardItemModel *treesql;
     void sqlquery(bool filter);
     QString _casetreestr = "select PatientID, PatientLastName, PatientFirstName, CaseStart, CaseEnd, \
         group_concat(StaffUser) as supervisor, CaseDesc \

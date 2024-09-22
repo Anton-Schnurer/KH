@@ -105,9 +105,8 @@ void CCases::sqlquery(bool filter)
     sql->setHeaderData(5, Qt::Horizontal, "Description");
 
 
-    // Zuweisung zur Table
+    // connect sql to view
     ui->casesTableView->setModel(sql);
-    // Verschönerung
     ui->casesTableView->setAlternatingRowColors(true);
     ui->casesTableView->hideColumn(0);                   // hides the id column
     ui->casesTableView->horizontalHeader()->setStretchLastSection(true);     // expands last column description to window-width

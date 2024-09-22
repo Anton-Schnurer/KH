@@ -102,9 +102,8 @@ void CRoles::sqlquery(bool filter)
     sql->setHeaderData(1, Qt::Horizontal, "Name");
     sql->setHeaderData(2, Qt::Horizontal, "Description");
 
-    // Zuweisung zur Table
+    // connect sql to view
     ui->rolesTableView->setModel(sql);
-    // Verschönerung
     ui->rolesTableView->setAlternatingRowColors(true);
     ui->rolesTableView->hideColumn(0);                   // hides the id column
     ui->rolesTableView->horizontalHeader()->setStretchLastSection(true);     // expands last column description to window-width

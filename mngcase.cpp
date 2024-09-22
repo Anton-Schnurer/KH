@@ -140,6 +140,7 @@ void CMngCase::save()
         return;
     }
 
+    // transaction logic for insert/update since it covers multiple tables
     bool transaction=true;
     QSqlQuery trans;
     trans.prepare("begin transaction");
@@ -213,7 +214,7 @@ void CMngCase::save()
             transaction=false;
         }
     }
-    // fill the supervisors intermediate tables StaffCase
+    // fill the supervisors in intermediate  StaffCase
     if (transaction)
     {
         if (!saveSupervisors(_CaseId))
@@ -237,7 +238,7 @@ void CMngCase::save()
 void CMngCase::delCase()
 {
 
-    // delete the selected Case (only under certain conditions) and data in intermediate tables StaffCase
+    // delete the selected Case (only under certain conditions) and data in intermediate table StaffCase
 
     if (ui->end_dateTimeEdit->dateTime() < QDateTime::currentDateTime())
     {
@@ -311,8 +312,6 @@ void CMngCase::newSup()
 {
 
     // adds a supervisor to the selected case (combo box)
-    // implement check if current user is allowed to add new supervisors
-
     // get combobox value
 
     int currentindex = ui->staffIdComboBox->currentIndex();
@@ -332,8 +331,6 @@ void CMngCase::delSup()
 {
 
     // removes a supervisor from the selected case (combo box)
-    // implement check if current user is allowed to remove supervisors and that 1 supervisor must be present at least
-
     // get marked line
     int rowid = ui->supTableView->selectionModel()->currentIndex().row();
     // access model with line and row

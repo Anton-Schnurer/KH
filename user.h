@@ -75,6 +75,5 @@ struct CUserHandling
 
 };
 
-//extern CUserHandling UserHandling;
 
 #endif // USER_H

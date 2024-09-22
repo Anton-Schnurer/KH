@@ -63,11 +63,9 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
         {
             // put data from db into the form
             ui->usernLineEdit->setText(queryone.value(1).toString());
-            // save pwd somewhere so it can be checked later
             ui->pwdLineEdit->setText(queryone.value(2).toString());
 
-            // save current pwd in encrypted form
-
+            // save current pwd in encrypted form to check if altered later
             _orig_pwd=queryone.value(2).toString();
 
             ui->firstnLineEdit->setText(queryone.value(3).toString());
@@ -181,9 +179,6 @@ void CMngStaff::save()
         QString pwd = ui->pwdLineEdit->text();
         QString passhash;
 
-        qDebug() << "_orig_pwd:" << _orig_pwd;
-        qDebug() << "pwd:" << pwd;
-
         if (_orig_pwd != pwd)
         {
             QByteArray bytea = pwd.toUtf8();
@@ -243,7 +238,6 @@ void CMngStaff::save()
 void CMngStaff::delStaff()
 {
     // delete the selected staff member (only under certain conditions) and data in intermediate tables StaffPerm, StaffRoles
-    // implement check if staff member is connected to any cases (StaffCase) and prevent deletion in that case
     QSqlQuery queryone("select * from StaffCase where StaffID="+ QString::number(_StaffId));
     if (queryone.next())
     {
@@ -307,7 +301,7 @@ void CMngStaff::delStaff()
                 trans.exec();
 
                 QMessageBox msg;
-                msg.setText("Error during delete, transaction rollback");
+                msg.setText("Error during delete");
                 msg.setWindowTitle("Error");
                 msg.addButton("Ok", QMessageBox::YesRole);
                 msg.exec();

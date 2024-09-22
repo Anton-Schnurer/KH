@@ -7,7 +7,6 @@
 #include "cases.h"
 #include "login.h"
 #include "user.h"
-#include <QSqlRecord>
 
 
 CMainWindow::CMainWindow(QWidget *parent)
@@ -55,8 +54,6 @@ CMainWindow::CMainWindow(QWidget *parent)
 
 
     sql = new QSqlQueryModel();
-    treesql = new QStandardItemModel();
-
     sqlquery(false);
 
 }
@@ -65,7 +62,7 @@ CMainWindow::~CMainWindow()
 {
     delete ui;
     delete sql;
-    delete treesql;
+
 }
 
 void CMainWindow::manageStaff()
@@ -125,8 +122,7 @@ void CMainWindow::changeUser()
     {
         quitWin();
     }
-    this->setWindowTitle("Hospital Management --- user: "+CUserHandling::_current_user);
-    //this->setWindowTitle("Hospital Management --- user: "+UserHandling._current_user);
+    this->setWindowTitle("Hospital Management - User: "+CUserHandling::_current_user);
 
 }
 
@@ -160,47 +156,9 @@ void CMainWindow::sqlquery(bool filter)
     sql->setHeaderData(5, Qt::Horizontal, "Supervisor");
     sql->setHeaderData(6, Qt::Horizontal, "Description");
 
-    // this is not working :(
 
-    treesql->setHeaderData(0, Qt::Horizontal, "PatientId");
-    treesql->setHeaderData(1, Qt::Horizontal, "Last Name");
-    treesql->setHeaderData(2, Qt::Horizontal, "First Name");
-    treesql->setHeaderData(3, Qt::Horizontal, "Case Start");
-    treesql->setHeaderData(4, Qt::Horizontal, "Case End");
-    treesql->setHeaderData(5, Qt::Horizontal, "Supervisor");
-    treesql->setHeaderData(6, Qt::Horizontal, "Description");
-
-
-    int lastid=0;
-    int id=0;
-
-    for (int i=0; i < sql->rowCount(); i++)
-    {
-        id = sql->record(i).value(0).toInt();
-        if (id == lastid)
-        {
-            // remove that value
-            //sql->setData(sql->index(i,0),NULL, Qt::EditRole);
-            treesql->setData(sql->index(i,0),NULL);
-        }
-        else
-        {
-            treesql->setData(sql->index(i,0),id);
-        }
-        treesql->setData(sql->index(i,1),sql->record(i).value(1).toString());
-        treesql->setData(sql->index(i,2),sql->record(i).value(2).toString());
-        treesql->setData(sql->index(i,3),sql->record(i).value(3).toString());
-        treesql->setData(sql->index(i,4),sql->record(i).value(4).toString());
-        treesql->setData(sql->index(i,5),sql->record(i).value(5).toString());
-        treesql->setData(sql->index(i,6),sql->record(i).value(6).toString());
-
-        lastid=id;
-    }
-
-
-    // Zuweisung zur TreeView
+    // TODO: Zuweisung zur TreeView
     ui->treeView->setModel(sql);
-    // Verschönerung
     ui->treeView->setAlternatingRowColors(true);
     // ui->treeView->hideColumn(0);                   // hides the id column
 

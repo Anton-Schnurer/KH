@@ -80,12 +80,8 @@ void CMngPatient::save()
         queryinsert.bindValue(":ssn", ui->SSNLineEdit->text());
         queryinsert.bindValue(":pnr", ui->phonenLineEdit->text());
 
-        // qDebug() << queryinsert.boundValues();
-
         if (!queryinsert.exec())
         {
-            // qDebug() << queryinsert.executedQuery();
-
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
@@ -128,7 +124,6 @@ void CMngPatient::save()
 void CMngPatient::delPatient()
 {
     // delete only patients that are not connected to cases
-    // implement check if patient is connected to any cases (Case-CPatientFK) and prevent deletion in that case
 
     QSqlQuery queryone("select * from Case where CPatientFK="+ QString::number(_PatientId));
     if (queryone.next())
@@ -152,10 +147,17 @@ void CMngPatient::delPatient()
         if (msg.exec() == QMessageBox::Yes)
         {
             // delete the specific patient
-            QSqlQuery delPatient("delete from Patient where PatientID="+QString::number(_PatientId));
-            if (!delPatient.next())
+            QSqlQuery delPatient;
+            delPatient.prepare("delete from Patient where PatientID=:patient");
+            delPatient.bindValue(":patient", QString::number(_PatientId));
+            if (!delPatient.exec())
             {
                 // something went wrong with delete
+                QMessageBox msg;
+                msg.setText("Error during delete");
+                msg.setWindowTitle("Error");
+                msg.addButton("Ok", QMessageBox::YesRole);
+                msg.exec();
             }
         }
     }
