@@ -70,7 +70,7 @@ void CMainWindow::manageStaff()
     CStaff staffwin;
     staffwin.setModal(true);
     staffwin.show();
-    staffwin.exec();
+    staffwin.exec();   
 }
 
 void CMainWindow::managePatients()
@@ -87,6 +87,10 @@ void CMainWindow::manageCases()
     caseswin.setModal(true);
     caseswin.show();
     caseswin.exec();
+
+    // reflect possible changes
+    sqlquery(false);
+
 }
 
 void CMainWindow::manageRoles()

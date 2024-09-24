@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     cases.cpp \
+    config.cpp \
     login.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
 
 HEADERS += \
     cases.h \
+    config.h \
     connection.h \
     login.h \
     mainwindow.h \

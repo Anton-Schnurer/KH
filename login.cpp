@@ -56,6 +56,7 @@ void CLogin::login()
         // entry has not been found
         QMessageBox msg;
         msg.setWindowTitle("Login Error");
+        msg.setText("No Entry found");
         msg.addButton("Ok", QMessageBox::YesRole);
         msg.exec();
         CUserHandling::_current_user=NULL;
