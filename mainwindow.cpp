@@ -7,6 +7,7 @@
 #include "cases.h"
 #include "login.h"
 #include "user.h"
+#include <QDateTime>
 
 
 CMainWindow::CMainWindow(QWidget *parent)
@@ -36,14 +37,8 @@ CMainWindow::CMainWindow(QWidget *parent)
     // manages Roles in drop-down menue
     QObject::connect(ui->actionManage_Roles, SIGNAL(triggered()), SLOT(manageRoles()));
 
-    // grey out manage roles in drop-down menue
-    // ui->actionManage_Roles->setEnabled(false);
-
     // manages Permissions in drop-down menue
     QObject::connect(ui->actionManage_Permissions, SIGNAL(triggered()), SLOT(managePerm()));
-
-    // grey out manage permissions in drop-down menue
-    // ui->actionManage_Permissions->setEnabled(false);
 
     // manages ChangeUser in drop-down menue and the button
     QObject::connect(ui->changeUser, SIGNAL(clicked()), SLOT(changeUser()));
@@ -122,7 +117,6 @@ void CMainWindow::changeUser()
     login.show();
     login.exec();
     if (CUserHandling::_current_user.isEmpty())
-    //if (UserHandling._current_user.isEmpty())
     {
         quitWin();
     }
@@ -139,16 +133,71 @@ void CMainWindow::sqlquery(bool filter)
 {
     QString query = _casetreestr;
 
+    QDate date = QDate::currentDate();
+    QString fromDate;
+    QString toDate;
+
+    // calculate start and end dates for this week in the format yyyy-MM-dd (needed for SQLite date function)
+
+    switch (date.dayOfWeek())
+    {
+    case 1:
+        // Monday
+        fromDate = date.toString("yyyy-MM-dd");
+        toDate = date.addDays(6).toString("yyyy-MM-dd");
+        break;
+    case 2:
+        // Tuesday
+        fromDate = date.addDays(-1).toString("yyyy-MM-dd");
+        toDate = date.addDays(5).toString("yyyy-MM-dd");
+        break;
+    case 3:
+        // Wednesday
+        fromDate = date.addDays(-2).toString("yyyy-MM-dd");
+        toDate = date.addDays(4).toString("yyyy-MM-dd");
+        break;
+    case 4:
+        // Thursday
+        fromDate = date.addDays(-3).toString("yyyy-MM-dd");
+        toDate = date.addDays(3).toString("yyyy-MM-dd");
+        break;
+    case 5:
+        // Friday
+        fromDate = date.addDays(-4).toString("yyyy-MM-dd");
+        toDate = date.addDays(2).toString("yyyy-MM-dd");
+        break;
+    case 6:
+        // Saturday
+        fromDate = date.addDays(-5).toString("yyyy-MM-dd");
+        toDate = date.addDays(1).toString("yyyy-MM-dd");
+        break;
+    case 7:
+        // Sunday
+        fromDate = date.addDays(-6).toString("yyyy-MM-dd");
+        toDate = date.toString("yyyy-MM-dd");
+        break;
+    }
+
+    //    query += " where date(substr(CaseEnd,7,4)||'-'||substr(CaseEnd,4,2)||'-'||substr(CaseEnd,1,2)) \
+    //                        between date('" + fromDate + "') and date('" + toDate + "')";
+
+    query += " where    date(substr(CaseEnd,7,4)||'-'||substr(CaseEnd,4,2)||'-'||substr(CaseEnd,1,2)) \
+                        >= date('" + fromDate + "') or \
+                        date(substr(CaseStart,7,4)||'-'||substr(CaseStart,4,2)||'-'||substr(CaseStart,1,2)) \
+                        <= date('" + toDate + "')";
+
     if (filter)
     {
         QString name = ui->searchText->text();
         if (!name.isEmpty())
         {
-            query += " where PatientLastName like '%" + name + "%' or PatientFirstName like '%" + name + "%'";
+            query += " and PatientLastName like '%" + name + "%' or PatientFirstName like '%" + name + "%'";
         }
     }
 
     query += " group by CaseID";
+
+    // qDebug() << query;
 
     sql->setQuery(query);
 
@@ -160,10 +209,8 @@ void CMainWindow::sqlquery(bool filter)
     sql->setHeaderData(5, Qt::Horizontal, "Supervisor");
     sql->setHeaderData(6, Qt::Horizontal, "Description");
 
-
-    // TODO: Zuweisung zur TreeView
     ui->treeView->setModel(sql);
     ui->treeView->setAlternatingRowColors(true);
-    // ui->treeView->hideColumn(0);                   // hides the id column
+    ui->treeView->hideColumn(0);                   // hides the id column
 
 }
