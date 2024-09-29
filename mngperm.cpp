@@ -28,9 +28,6 @@ CMngPerm::CMngPerm(QWidget *parent, int permId)
             // put data from db into the form
             ui->permNlineEdit->setText(queryone.value(1).toString());
             ui->permDtextEdit->setText(queryone.value(2).toString());
-
-            // this is how you can disable access to entryfields:
-            // ui->permNlineEdit->setEnabled(false);
         }
     }
     else
@@ -39,6 +36,7 @@ CMngPerm::CMngPerm(QWidget *parent, int permId)
         ui->delBtn->setEnabled(false);
     }
 
+    // check permissions of current user to possibly disable certain UI elements like save/delete
     checkPerm();
 }
 
@@ -65,12 +63,9 @@ void CMngPerm::save()
         queryinsert.bindValue(":name", ui->permNlineEdit->text());
         queryinsert.bindValue(":desc", ui->permDtextEdit->toPlainText());
 
-        // qDebug() << queryinsert.boundValues();
-
         if (!queryinsert.exec())
         {
-            // qDebug() << queryinsert.executedQuery();
-
+            // something went wrong with insert
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
@@ -95,6 +90,7 @@ void CMngPerm::save()
 
         if (!queryupdate.exec())
         {
+            // something went wrong with update
             QMessageBox msg;
             msg.setText("Error during update");
             msg.setWindowTitle("Error");
@@ -130,6 +126,7 @@ void CMngPerm::delPerm()
         msg.setDefaultButton(QMessageBox::Yes);
         QAbstractButton *but = msg.button(QMessageBox::Yes);
         but->setText("Ok");
+
         if (msg.exec() == QMessageBox::Yes)
         {
             // delete the specific permission

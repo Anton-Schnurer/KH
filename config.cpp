@@ -9,12 +9,13 @@ CConfig::CConfig() {}
 
 QString CConfig::read_config()
 {
-    QString configfile="../../KH.cfg";
+    QString configfile="../../KH.cfg";                              // since this program is only started via Qt we use a fixed, relative path
     QString dbname=NULL;
 
     QFile File(configfile);
     if (!File.exists())
     {
+        // config must exist
         QMessageBox msg;
         msg.setWindowTitle("Config Error");
         msg.setText("Config File does not exist");
@@ -32,10 +33,12 @@ QString CConfig::read_config()
             filedata = stream.readLine();
             if (filedata.startsWith("#"))
             {
+                // comments start with a #
                 continue;
             }
             else
             {
+                // uncommented line should be the path+filename of the db
                 dbname = filedata;
             }
         }

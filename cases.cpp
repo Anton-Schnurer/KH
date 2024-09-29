@@ -39,7 +39,7 @@ void CCases::quitWin()
     this->close();
 }
 
-void CCases::newCase()
+void CCases::newCase()                                      // opens the mngcase window for creating a new case
 {
     CMngCase mngcase(this,0);
     mngcase.setModal(true);
@@ -50,7 +50,7 @@ void CCases::newCase()
 
 }
 
-void CCases::editCase(const QModelIndex &index)
+void CCases::editCase(const QModelIndex &index)             // opens the mngcase window to edit an existing case selected from the tableview
 {
     int CaseID = ui->casesTableView->model()->index(index.row(), _CaseID).data().toInt();
     // open window
@@ -59,7 +59,7 @@ void CCases::editCase(const QModelIndex &index)
     mngcase.show();
     mngcase.exec();
 
-    // update list of staff
+    // update list of cases
     sqlquery(false);
 
 }
@@ -86,7 +86,7 @@ void CCases::sqlquery(bool filter)
 {
     QString query = _casestr;
 
-    if (filter)
+    if (filter)                                                     // search function has been used
     {
         QString name = ui->searchPlineEdit->text();
         if (!name.isEmpty())

@@ -17,7 +17,7 @@ CLogin::CLogin(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("Login/Change User");
-    ui->passwdLineEdit->setEchoMode(QLineEdit::Password);
+    ui->passwdLineEdit->setEchoMode(QLineEdit::Password);                       // obfuscates actual hash of password
 
     QObject::connect(ui->LoginButton,SIGNAL(clicked()), SLOT(login()));
     QObject::connect(ui->CancelButton,SIGNAL(clicked()),SLOT(cancel()));
@@ -33,6 +33,7 @@ void CLogin::login()
 {
     QString user = ui->userLineEdit->text();
     QString pwd = ui->passwdLineEdit->text();
+    // convert password text content to hash
     QByteArray bytea = pwd.toUtf8();
     QString passhash = QCryptographicHash::hash(bytea,QCryptographicHash::Sha256).toHex();
 

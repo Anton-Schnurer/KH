@@ -19,10 +19,10 @@ public:
     ~CMngPerm();
 
 public slots:
-    void quitWin();
-    void save();
-    void delPerm();
-    void checkPerm();
+    void quitWin();                                                 // closes the window
+    void save();                                                    // insert or update permission in db
+    void delPerm();                                                 // delete permission in db
+    void checkPerm();                                               // check if user is allowed to insert/update/delete permissions
 
 private:
     Ui::CMngPerm *ui;

@@ -20,19 +20,19 @@ public:
     ~CMainWindow();
 
 public slots:
-    void manageStaff();
-    void managePatients();
-    void manageCases();
-    void manageRoles();
-    void managePerm();
-    void quitWin();
-    void changeUser();
-    void search();
+    void manageStaff();                                                 // button and menue-entry opens the staff list window
+    void managePatients();                                              // button and menue-entry opens the patient list window
+    void manageCases();                                                 // button and menue-entry opens the case list window
+    void manageRoles();                                                 // menue-entry opens the roles list window
+    void managePerm();                                                  // menue-entry opens the permissions list window
+    void quitWin();                                                     // closes the mainwindow and in turn the program
+    void changeUser();                                                  // change the current user - opens up the loginwindow
+    void search();                                                      // search in the treeview for all patients that have active cases this week
 
 private:
     Ui::CMainWindow *ui;
     QSqlQueryModel *sql;
-    void sqlquery(bool filter);
+    void sqlquery(bool filter);                                         // construct correct sqlstmnt depending on search-field
     QString _casetreestr = "select PatientID, PatientLastName, PatientFirstName, CaseStart, CaseEnd, \
         group_concat(StaffUser) as supervisor, CaseDesc \
         from 'Case' \

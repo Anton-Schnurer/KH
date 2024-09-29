@@ -18,8 +18,8 @@ public:
     ~CLogin();
 
 public slots:
-    void login();
-    void cancel();
+    void login();                           // connected to login button, compares username/pwd to db-entry
+    void cancel();                          // close the login window
 
 private:
     Ui::CLogin *ui;

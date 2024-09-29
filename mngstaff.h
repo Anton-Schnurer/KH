@@ -22,13 +22,13 @@ public:
     ~CMngStaff();
 
 public slots:
-    void quitWin();
-    void save();
-    void delStaff();
-    void newRole();
-    void delRole();
-    void newPerm();
-    void delPerm();
+    void quitWin();                                     // close the window
+    void save();                                        // insert new staff member or update existing one
+    void delStaff();                                    // delete selected staff member
+    void newRole();                                     // add new role to staff member
+    void delRole();                                     // remove role from staff member
+    void newPerm();                                     // add new permission to staff member
+    void delPerm();                                     // remove permission from staff member
 
 private:
     Ui::CMngStaff *ui;
@@ -39,14 +39,14 @@ private:
     QList<int> permissions;
     QList<int> roles;
 
-    void fillPerm(int staffid);
-    void fillRole(int staffid);
-    void fillTableFromPerm();
-    void fillTableFromRole();
-    bool savePermissions(int staffid);
-    bool saveRoles(int staffid);
-    void checkPerm();
-    void checkRole();
+    void fillPerm(int staffid);                         // fill QList permissions
+    void fillRole(int staffid);                         // fill QList roles
+    void fillTableFromPerm();                           // list permissions for staff member in table view
+    void fillTableFromRole();                           // list roles for staff member in table view
+    bool savePermissions(int staffid);                  // save permissions for staff member in db
+    bool saveRoles(int staffid);                        // save roles for staff member in db
+    void checkPerm();                                   // check permissions of current user if allowed to change username/pwd
+    void checkRole();                                   // check role of current user if allowed to edit/create/delete staff or change pwd
 
 };
 

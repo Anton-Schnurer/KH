@@ -35,11 +35,14 @@ int main(int argc, char *argv[])
     login.setModal(true);
     login.show();
     login.exec();
+
+    // login was unsuccessful
     if (CUserHandling::_current_user.isEmpty())
     {
         return EXIT_FAILURE;
     }
 
+    // open the mainwindow
     CMainWindow w;
     w.show();
     return a.exec();

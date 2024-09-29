@@ -37,6 +37,7 @@ CMngPatient::CMngPatient(QWidget *parent, int patientId)
         ui->delBtn->setEnabled(false);
     }
 
+    // check role of current user if allowed to use certain ui elements like save/delete
     checkRole();
 }
 
@@ -52,8 +53,6 @@ void CMngPatient::quitWin()
 
 void CMngPatient::save()
 {
-    // save the
-
     // check if all fields are filled
 
     if (ui->firstnLineEdit->text().isEmpty() ||
@@ -82,6 +81,7 @@ void CMngPatient::save()
 
         if (!queryinsert.exec())
         {
+            // insert failed
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
@@ -110,6 +110,7 @@ void CMngPatient::save()
 
         if (!queryupdate.exec())
         {
+            // update failed
             QMessageBox msg;
             msg.setText("Error during update");
             msg.setWindowTitle("Error");
@@ -144,6 +145,7 @@ void CMngPatient::delPatient()
         msg.setDefaultButton(QMessageBox::Yes);
         QAbstractButton *but = msg.button(QMessageBox::Yes);
         but->setText("Ok");
+
         if (msg.exec() == QMessageBox::Yes)
         {
             // delete the specific patient
@@ -168,6 +170,7 @@ void CMngPatient::delPatient()
 void CMngPatient::checkRole()
 {
     // check if user is allowed to insert/update/delete
+
     QString search_string="default";
     if (CUserHandling::search_role_list(search_string))
     {

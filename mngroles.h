@@ -19,10 +19,10 @@ public:
     ~CMngRoles();
 
 public slots:
-    void quitWin();
-    void save();
-    void delRole();
-    void checkPerm();
+    void quitWin();                             // closes the window
+    void save();                                // insert new role or update existing role
+    void delRole();                             // delete selected role
+    void checkPerm();                           // check permissions of current user if allowed to insert/update/delete
 
 
 private:

@@ -65,7 +65,7 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
             ui->usernLineEdit->setText(queryone.value(1).toString());
             ui->pwdLineEdit->setText(queryone.value(2).toString());
 
-            // save current pwd in encrypted form to check if altered later
+            // remember current pwd in encrypted form to check if altered later
             _orig_pwd=queryone.value(2).toString();
 
             ui->firstnLineEdit->setText(queryone.value(3).toString());
@@ -86,7 +86,7 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
     }
 
     checkPerm();        // check permissions, affects (password/username)
-    checkRole();        // check roles, affects all other fields
+    checkRole();        // check roles, affects all other fields and UI buttons
 }
 
 CMngStaff::~CMngStaff()
@@ -123,6 +123,8 @@ void CMngStaff::save()
         return;
     }
 
+    // transaction logic since insert/udpate covers multiple tables
+    // bool transaction decided if commit or rollback
     bool transaction=true;
     QSqlQuery trans;
     trans.prepare("begin transaction");
@@ -149,6 +151,7 @@ void CMngStaff::save()
 
         if (!queryinsert.exec())
         {
+            // something went wrong during insert
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
@@ -197,6 +200,7 @@ void CMngStaff::save()
 
         if (!queryupdate.exec())
         {
+            // something went wrong during update
             QMessageBox msg;
             msg.setText("Error during update");
             msg.setWindowTitle("Error");
@@ -238,6 +242,7 @@ void CMngStaff::save()
 void CMngStaff::delStaff()
 {
     // delete the selected staff member (only under certain conditions) and data in intermediate tables StaffPerm, StaffRoles
+
     QSqlQuery queryone("select * from StaffCase where StaffID="+ QString::number(_StaffId));
     if (queryone.next())
     {
@@ -259,7 +264,8 @@ void CMngStaff::delStaff()
         but->setText("Ok");
         if (msg.exec() == QMessageBox::Yes)
         {
-
+            // transaction logic since delete covers multiple tables
+            // bool transaction decides if rollback or commit
             // delete data in intermediate tables StaffPerm, StaffRoles
             bool transaction=true;
 
@@ -319,6 +325,7 @@ void CMngStaff::newRole()
     int currentindex = ui->rolesComboBox->currentIndex();
     QVariant variant = ui->rolesComboBox->itemData(currentindex);
     int roleid = variant.toInt();
+
     // Add roleid to roles list
     if (!roles.contains(roleid))
     {
@@ -340,6 +347,7 @@ void CMngStaff::delRole()
     if (index != -1)
     {
         roles.removeAt(index);
+        // populate role table view
         fillTableFromRole();
     }
 }
@@ -347,16 +355,16 @@ void CMngStaff::delRole()
 void CMngStaff::newPerm()
 {
     // adds a permission to the selected staff member (combo box)
-    // implement check if current user is allowed to give new
-
     // get combobox value
     int currentindex = ui->permComboBox->currentIndex();
     QVariant variant = ui->permComboBox->itemData(currentindex);
     int permid = variant.toInt();
+
     // Add permid to permissions list
     if (!permissions.contains(permid))
     {
         permissions.append(permid);
+        // populate permission table view
         fillTableFromPerm();
     }
 
@@ -365,8 +373,6 @@ void CMngStaff::newPerm()
 void CMngStaff::delPerm()
 {
     // removes a permission from the selected staff member (combo box)
-    // implement check if current user is allowed to remove permissions and that 1 permission must be granted at
-
     // get marked line
     int rowid = ui->permTableView->selectionModel()->currentIndex().row();
     // access model with line and row
@@ -377,6 +383,7 @@ void CMngStaff::delPerm()
     if (index != -1)
     {
         permissions.removeAt(index);
+        // populate permission table view
         fillTableFromPerm();
     }
 
@@ -468,7 +475,6 @@ void CMngStaff::fillTableFromRole()
 
 bool CMngStaff::savePermissions(int staffid)
 {
-    //
     // query the permissions list and only insert the missing entires
     foreach(int permid, permissions)
     {
@@ -519,7 +525,6 @@ bool CMngStaff::savePermissions(int staffid)
 
 bool CMngStaff::saveRoles(int staffid)
 {
-    //
     // query the roles list and only insert the missing entires
     foreach(int roleid, roles)
     {
@@ -588,7 +593,7 @@ void CMngStaff::checkPerm()
         ui->pwdLineEdit->setEnabled(true);
         return;
     }
-    // disable the password entry field + username
+    // disable the password entry field + username for all other users
     ui->pwdLineEdit->setDisabled(true);
     ui->usernLineEdit->setDisabled(true);
 }

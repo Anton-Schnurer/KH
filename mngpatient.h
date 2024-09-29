@@ -19,10 +19,10 @@ public:
     ~CMngPatient();
 
 public slots:
-    void quitWin();
-    void save();
-    void delPatient();
-    void checkRole();
+    void quitWin();                                     // closes the window
+    void save();                                        // saves new patient or updates current patient in the db
+    void delPatient();                                  // deletes patient from db
+    void checkRole();                                   // check role of current user if allowed to save/edit/delete
 
 
 private:

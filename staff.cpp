@@ -25,6 +25,7 @@ CStaff::CStaff(QWidget *parent)
     sql = new QSqlQueryModel();
     sqlquery(false);
 
+    // depending on the role of current user certain UI elements will be disabled
     checkRole();
 }
 
@@ -41,6 +42,7 @@ void CStaff::quitWin()
 
 void CStaff::newStaff()
 {
+    // open mngstaff window to create new staff
     CMngStaff mngstaff(this, 0);
     mngstaff.setModal(true);
     mngstaff.show();
@@ -54,7 +56,7 @@ void CStaff::editStaff(const QModelIndex & index)
 {
     // get the id of the record and call the mngstaff window
     int StaffID = ui->stafftableView->model()->index(index.row(), _StaffID).data().toInt();
-    // open window
+    // open mngstaff window to edit selected staff
     CMngStaff mngstaff(this, StaffID);
     mngstaff.setModal(true);
     mngstaff.show();
@@ -109,9 +111,8 @@ void CStaff::sqlquery(bool filter)
     sql->setHeaderData(6, Qt::Horizontal, "Permissions");
     sql->setHeaderData(7, Qt::Horizontal, "Roles");
 
-    // Zuweisung zur Table
+    // connect model to view
     ui->stafftableView->setModel(sql);
-    // Verschönerung
     ui->stafftableView->setAlternatingRowColors(true);
     ui->stafftableView->hideColumn(0);                   // hides the id column
     ui->stafftableView->hideColumn(2);                   // hides the password

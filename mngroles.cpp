@@ -28,9 +28,6 @@ CMngRoles::CMngRoles(QWidget *parent, int roleId)
             // put data from db into the form
             ui->roleNlineEdit->setText(queryone.value(1).toString());
             ui->roleDtextEdit->setText(queryone.value(2).toString());
-
-            // this is how you can disable access to entryfields:
-            // ui->permNlineEdit->setEnabled(false);
         }
     }
     else
@@ -67,6 +64,7 @@ void CMngRoles::save()
 
         if (!queryinsert.exec())
         {
+            // something went wrong during insert
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
@@ -91,6 +89,7 @@ void CMngRoles::save()
 
         if (!queryupdate.exec())
         {
+            // something went wrong during update
             QMessageBox msg;
             msg.setText("Error during update");
             msg.setWindowTitle("Error");
@@ -107,8 +106,8 @@ void CMngRoles::delRole()
 {
 
     // delete only roles that are not connected to staff members
-    // delete the selected role (only under certain conditions)
     QSqlQuery queryone("select * from StaffRoles where SRRolesFK="+ QString::number(_RoleId));
+
     if (queryone.next())
     {
         // this role is connected to at least one staff member
@@ -127,6 +126,7 @@ void CMngRoles::delRole()
         msg.setDefaultButton(QMessageBox::Yes);
         QAbstractButton *but = msg.button(QMessageBox::Yes);
         but->setText("Ok");
+
         if (msg.exec() == QMessageBox::Yes)
         {
             // delete the specific permission

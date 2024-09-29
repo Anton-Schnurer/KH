@@ -8,6 +8,7 @@
 struct CUserHandling
 {
 
+    // remember staffid/username, permissions and roles for current user
 
     static QString _current_user;
     static int _current_staffid;
@@ -25,6 +26,7 @@ struct CUserHandling
 
     static void fill_perm_list()
     {
+        // fill QList of permissions for current user
         _perm_list.clear();
         QSqlQuery queryperm("select PermName from Permissions \
                                 join StaffPerm on SPPermFK=PermID \
@@ -41,6 +43,7 @@ struct CUserHandling
 
     static bool search_perm_list(QString& search_string)
     {
+        // search permissions list for certain string
         if (_perm_list.contains(search_string))
         {
             return true;
@@ -50,6 +53,7 @@ struct CUserHandling
 
     static void fill_role_list()
     {
+        // fill QList of roles for current user
         _role_list.clear();
         QSqlQuery queryrole("select RoleName from Roles \
                                 join StaffRoles on SRRolesFK=RoleID \
@@ -66,6 +70,7 @@ struct CUserHandling
 
     static bool search_role_list(QString& search_string)
     {
+        // search role list for certain string
         if (_role_list.contains(search_string))
         {
             return true;

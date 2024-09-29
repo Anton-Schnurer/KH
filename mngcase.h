@@ -21,12 +21,12 @@ public:
     ~CMngCase();
 
 public slots:
-    void quitWin();
-    void save();
-    void delCase();
-    void newSup();
-    void delSup();
-    void checkRole();
+    void quitWin();                                             // closes the window
+    void save();                                                // saves the currently displayed case in the db
+    void delCase();                                             // deletes the currently displayed case in the db
+    void newSup();                                              // adds a supervisor to the case
+    void delSup();                                              // removes a supervisor from the case
+    void checkRole();                                           // check which roles the current user has to limit functionality
 
 
 
@@ -37,9 +37,9 @@ private:
     QStandardItemModel *supmodel;
     QList<int> supervisors;
 
-    void fillSup(int caseid);
-    void fillTableFromSup();
-    bool saveSupervisors(int caseid);
+    void fillSup(int caseid);                                   // fills supervisor QList
+    void fillTableFromSup();                                    // populates entries for the supervisor table view
+    bool saveSupervisors(int caseid);                           // saves new list of supervisors for current case in the db
 
 };
 

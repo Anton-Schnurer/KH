@@ -16,7 +16,6 @@ CMainWindow::CMainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("Hospital Management --- user: "+CUserHandling::_current_user);
-    //this->setWindowTitle("Hospital Management --- user: "+UserHandling._current_user);
 
     // manages Staff in drop-down menue and the button
     QObject::connect(ui->manageStaff, SIGNAL(clicked()), SLOT(manageStaff()));
@@ -60,7 +59,7 @@ CMainWindow::~CMainWindow()
 
 }
 
-void CMainWindow::manageStaff()
+void CMainWindow::manageStaff()                                             // opens the staff list window
 {
     CStaff staffwin;
     staffwin.setModal(true);
@@ -68,7 +67,7 @@ void CMainWindow::manageStaff()
     staffwin.exec();   
 }
 
-void CMainWindow::managePatients()
+void CMainWindow::managePatients()                                          // opens the patient list window
 {
     CPatient patientwin;
     patientwin.setModal(true);
@@ -76,7 +75,7 @@ void CMainWindow::managePatients()
     patientwin.exec();
 }
 
-void CMainWindow::manageCases()
+void CMainWindow::manageCases()                                             // opens the case list window
 {
     CCases caseswin;
     caseswin.setModal(true);
@@ -88,7 +87,7 @@ void CMainWindow::manageCases()
 
 }
 
-void CMainWindow::manageRoles()
+void CMainWindow::manageRoles()                                             // opens the role list window
 {
     CRoles roleswin;
     roleswin.setModal(true);
@@ -96,7 +95,7 @@ void CMainWindow::manageRoles()
     roleswin.exec();
 }
 
-void CMainWindow::managePerm()
+void CMainWindow::managePerm()                                              // opens the permission list window
 {
     CPerm permwin;
     permwin.setModal(true);
@@ -104,20 +103,22 @@ void CMainWindow::managePerm()
     permwin.exec();
 }
 
-void CMainWindow::quitWin()
+void CMainWindow::quitWin()                                                 // closes the mainwindow and in turn the program
 {
     this->close();
 }
 
 void CMainWindow::changeUser()
 {
-    // open login and check if user has been changed or not
+    // opens loginwindow to enter new username/pwd
     CLogin login;
     login.setModal(true);
     login.show();
     login.exec();
+
     if (CUserHandling::_current_user.isEmpty())
     {
+        // no username/pwd has been set successfully
         quitWin();
     }
     this->setWindowTitle("Hospital Management - User: "+CUserHandling::_current_user);
@@ -138,6 +139,7 @@ void CMainWindow::sqlquery(bool filter)
     QString toDate;
 
     // calculate start and end dates for this week in the format yyyy-MM-dd (needed for SQLite date function)
+    // fromDate -> date of monday, toDate -> date of sunday
 
     switch (date.dayOfWeek())
     {
@@ -178,16 +180,17 @@ void CMainWindow::sqlquery(bool filter)
         break;
     }
 
-    //    query += " where date(substr(CaseEnd,7,4)||'-'||substr(CaseEnd,4,2)||'-'||substr(CaseEnd,1,2)) \
-    //                        between date('" + fromDate + "') and date('" + toDate + "')";
+    //    CaseStart and CaseEnd fields from the database are in the format dd/MM/yyyy HH:SS
+    //    to convert it to format yyyy-MM-dd we have to use substr() and concatinate it with -
 
-    query += " where    date(substr(CaseEnd,7,4)||'-'||substr(CaseEnd,4,2)||'-'||substr(CaseEnd,1,2)) \
-                        >= date('" + fromDate + "') or \
+    query += " where    (date(substr(CaseEnd,7,4)||'-'||substr(CaseEnd,4,2)||'-'||substr(CaseEnd,1,2)) \
+                        >= date('" + fromDate + "') and \
                         date(substr(CaseStart,7,4)||'-'||substr(CaseStart,4,2)||'-'||substr(CaseStart,1,2)) \
-                        <= date('" + toDate + "')";
+                        <= date('" + toDate + "'))";
 
     if (filter)
     {
+        // if search-field was filled further limit result
         QString name = ui->searchText->text();
         if (!name.isEmpty())
         {

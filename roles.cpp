@@ -25,6 +25,7 @@ CRoles::CRoles(QWidget *parent)
     sql = new QSqlQueryModel();
     sqlquery(false);
 
+    // depending on permission of current user certain UI elements will be disabled
     checkPerm();
 }
 
@@ -41,11 +42,13 @@ void CRoles::quitWin()
 
 void CRoles::newRole()
 {
+    // opens mngrole window to create new role
     CMngRoles mngrole(this,0);
     mngrole.setModal(true);
     mngrole.show();
     mngrole.exec();
 
+    // update table view of roles
     sqlquery(false);
 
 }
@@ -54,13 +57,13 @@ void CRoles::editRole(const QModelIndex &index)
 {
     // get the id of the record and call the mngperm window
     int RoleID = ui->rolesTableView->model()->index(index.row(), _RoleID).data().toInt();
-    // open window
+    // open mngrole window to edit selected role
     CMngRoles mngrole(this, RoleID);
     mngrole.setModal(true);
     mngrole.show();
     mngrole.exec();
 
-    // update list of staff
+    // update table view of roles
     sqlquery(false);
 
 }
@@ -95,7 +98,6 @@ void CRoles::sqlquery(bool filter)
             query += " where RoleName like '%" + name + "%'";
         }
     }
-    // query += " group by PermID";
 
     sql->setQuery(query);
     sql->setHeaderData(0, Qt::Horizontal, "Id");

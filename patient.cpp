@@ -25,6 +25,7 @@ CPatient::CPatient(QWidget *parent)
     sql = new QSqlQueryModel();
     sqlquery(false);
 
+    // depending on the role of the current user certain ui elements are disabled
     checkRole();
 }
 
@@ -42,12 +43,13 @@ void CPatient::quitWin()
 
 void CPatient::newPatient()
 {
+    // open mngpatient window to create new patient
     CMngPatient mngpatient(this, 0);
     mngpatient.setModal(true);
     mngpatient.show();
     mngpatient.exec();
 
-    // update the table view
+    // update the table view of patients
     sqlquery(false);
 
 }
@@ -56,13 +58,13 @@ void CPatient::editPatient(const QModelIndex &index)
 {
     // get the id of the record and call the mngstaff window
     int PatientID = ui->patientTableView->model()->index(index.row(), _PatientID).data().toInt();
-    // open window
+    // open mngpatient window to edit selected patient
     CMngPatient mngpatient(this, PatientID);
     mngpatient.setModal(true);
     mngpatient.show();
     mngpatient.exec();
 
-    // update list of staff
+    // update the table view of patients
     sqlquery(false);
 
 }
@@ -87,11 +89,12 @@ void CPatient::checkRole()
 }
 
 void CPatient::sqlquery(bool filter)
-{
+{   
     QString query = _patientstr;
 
     if (filter)
     {
+        // search field is filled
         QString name = ui->searchPlineEdit->text();
         if (!name.isEmpty())
         {
@@ -107,11 +110,8 @@ void CPatient::sqlquery(bool filter)
     sql->setHeaderData(3, Qt::Horizontal, "SSN");
     sql->setHeaderData(5, Qt::Horizontal, "Phone Number");
 
-    // Zuweisung zur Table
+    // connect model to view
     ui->patientTableView->setModel(sql);
-    // Verschönerung
     ui->patientTableView->setAlternatingRowColors(true);
     ui->patientTableView->hideColumn(0);                   // hides the id column
-
-
 }

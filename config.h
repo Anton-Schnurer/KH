@@ -8,7 +8,7 @@ class CConfig
 public:
     CConfig();
 
-    QString read_config();
+    QString read_config();                              // reads the database path+name from the config file
 
 };
 

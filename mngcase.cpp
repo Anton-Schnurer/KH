@@ -65,15 +65,12 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
             int entry = ui->patientIdComboBox->findData(fk);      // findData searches in key value column of the comboBox
             ui->patientIdComboBox->setCurrentIndex(entry);
 
-            qDebug() << queryone.value(2).toString();
-            qDebug() << queryone.value(3).toString();
-
             // String from Database needs to be converted to QDateTime dd: day(1-31), MM month (1-12), yyyy year, HH hours (24h), mm minutes
             ui->start_dateTimeEdit->setDateTime(QDateTime::fromString(queryone.value(2).toString(),"dd/MM/yyyy HH:mm"));
             ui->end_dateTimeEdit->setDateTime(QDateTime::fromString(queryone.value(3).toString(),"dd/MM/yyyy HH:mm"));
             ui->caseDtextEdit->setText(queryone.value(4).toString());
         }
-        // fill out current supervisors
+        // fill out QList and table view of current supervisors
         fillSup(_CaseId);
         fillTableFromSup();
 
@@ -89,6 +86,7 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
         ui->delBtn->setEnabled(false);
     }
 
+    // depending on the role of the current user certain buttons will be disabled
     checkRole();
 }
 
@@ -141,6 +139,7 @@ void CMngCase::save()
     }
 
     // transaction logic for insert/update since it covers multiple tables
+    // bool transaction decides if commit or rollback
     bool transaction=true;
     QSqlQuery trans;
     trans.prepare("begin transaction");
@@ -172,12 +171,8 @@ void CMngCase::save()
         queryinsert.bindValue(":cend", ui->end_dateTimeEdit->text());
         queryinsert.bindValue(":cdesc", ui->caseDtextEdit->toPlainText());
 
-        //qDebug() << queryinsert.boundValues();
-
         if (!queryinsert.exec())
         {
-            //qDebug() << queryinsert.executedQuery();
-
             QMessageBox msg;
             msg.setText("Error during Insert");
             msg.setWindowTitle("Error");
@@ -214,7 +209,7 @@ void CMngCase::save()
             transaction=false;
         }
     }
-    // fill the supervisors in intermediate  StaffCase
+    // fill the supervisors in intermediate table StaffCase
     if (transaction)
     {
         if (!saveSupervisors(_CaseId))
@@ -263,6 +258,8 @@ void CMngCase::delCase()
     if (msg.exec() == QMessageBox::Yes)
     {
         // delete data in intermediate table StaffCase
+        // transaction logic since delete covers multiple tables in db
+        // bool transaction decides if commit or rollback
         bool transaction=true;
         QSqlQuery trans;
         trans.prepare("begin transaction");
@@ -273,12 +270,11 @@ void CMngCase::delCase()
         if (!delStaffCase.exec())
         {
             // something went wrong with delete
-            // there should always be at least one supervisor for a given case
             transaction=false;
         }
 
         if (transaction) {
-            // delete the specific staff member
+            // delete the specific staff member in table Case
             QSqlQuery delCase;
             delCase.prepare("delete from 'Case' where CaseID="+QString::number(_CaseId));
             if (!delCase.exec())
@@ -317,11 +313,11 @@ void CMngCase::newSup()
     int currentindex = ui->staffIdComboBox->currentIndex();
     QVariant variant = ui->staffIdComboBox->itemData(currentindex);
     int staffid = variant.toInt();
-    // Add staffid to permissions list
+    // Add staffid to supervisors list
     if (!supervisors.contains(staffid))
     {
         supervisors.append(staffid);
-        // update view
+        // update table view
         fillTableFromSup();
     }
 
@@ -366,7 +362,7 @@ void CMngCase::checkRole()
 
 void CMngCase::fillSup(int caseid)
 {
-    // fill list supervisors
+    // fill list of supervisors
     // fills list of integers with PK staffid for this case
     QSqlQuery querysup("select SCStaffFK from StaffCase where SCCaseFK=" + QString::number(caseid));
 

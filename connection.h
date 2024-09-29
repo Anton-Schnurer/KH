@@ -14,7 +14,7 @@ static bool createConnection(QString dbname)
 
     if (dbname.isEmpty())
     {
-        // db.setDatabaseName("KH.db");
+        // dbname was not set during read_config
         QMessageBox msg;
         msg.setWindowTitle("No database path/name set");
         msg.setText("Error");
@@ -27,6 +27,7 @@ static bool createConnection(QString dbname)
         QFile File(dbname);
         if (!File.exists())
         {
+            // check if dbfile exists to prevent SQLite creating an empty db
             QMessageBox msg;
             msg.setText("Error finding database file: " + dbname);
             msg.setWindowTitle("Error");
