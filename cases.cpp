@@ -8,7 +8,7 @@ CCases::CCases(QWidget *parent)
     , ui(new Ui::CCases)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Manage Cases");
+    this->setWindowTitle("Manage Cases --- user: "+CUserHandling::_current_user);
 
     // manage quit button
     QObject::connect(ui->quitBtn, SIGNAL(clicked()), SLOT(quitWin()));
@@ -74,12 +74,26 @@ void CCases::search()
 void CCases::checkRole()
 {
     // check if user is allowed to create a new case
-    QString search_string="default";
+    QString search_string="admin";
     if (CUserHandling::search_role_list(search_string))
     {
-        // not allowed to create new case
-        ui->newCaseBtn->setDisabled(true);
+        // allowed
+        return;
     }
+    search_string="doctor";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // allowed
+        return;
+    }
+    search_string="nurse";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // allowed
+        return;
+    }
+    // not allowed to create new case
+    ui->newCaseBtn->setDisabled(true);
 }
 
 void CCases::sqlquery(bool filter)

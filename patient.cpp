@@ -8,7 +8,7 @@ CPatient::CPatient(QWidget *parent)
     , ui(new Ui::CPatient)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Manage Patients");
+    this->setWindowTitle("Manage Patients --- user: "+CUserHandling::_current_user);
 
     // Manages the search button + field
     QObject::connect(ui->searchPBtn, SIGNAL(clicked()), SLOT(search()));
@@ -78,14 +78,26 @@ void CPatient::search()
 void CPatient::checkRole()
 {
     // check if user is allowed to create a new patient
-    QString search_string="default";
+    QString search_string="admin";
     if (CUserHandling::search_role_list(search_string))
     {
-        // not allowed
-        ui->newPatientBtn->setDisabled(true);
+        ui->newPatientBtn->setEnabled(true);
         return;
     }
-
+    search_string="nurse";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        ui->newPatientBtn->setEnabled(true);
+        return;
+    }
+    search_string="doctor";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        ui->newPatientBtn->setEnabled(true);
+        return;
+    }
+    // not allowed
+    ui->newPatientBtn->setDisabled(true);
 }
 
 void CPatient::sqlquery(bool filter)

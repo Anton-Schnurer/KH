@@ -8,7 +8,7 @@ CMngRoles::CMngRoles(QWidget *parent, int roleId)
 {
     _RoleId = roleId;
     ui->setupUi(this);
-    this->setWindowTitle("Manage Role");
+    this->setWindowTitle("Manage Role --- user: "+CUserHandling::_current_user);
 
     // save Btn
     QObject::connect(ui->saveBtn, SIGNAL(clicked()), SLOT(save()));

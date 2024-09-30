@@ -8,7 +8,7 @@ CMngCase::CMngCase(QWidget *parent, int caseId)
 {
     _CaseId = caseId;
     ui->setupUi(this);
-    this->setWindowTitle("Manage Case");
+    this->setWindowTitle("Manage Case --- user: "+CUserHandling::_current_user);
 
     // save Btn
     QObject::connect(ui->saveBtn, SIGNAL(clicked()), SLOT(save()));
@@ -347,17 +347,32 @@ void CMngCase::delSup()
 void CMngCase::checkRole()
 {
     // check user if allowed to create/edit/delete case and assign supervisors
-    QString search_string="default";
+    QString search_string="admin";
     if (CUserHandling::search_role_list(search_string))
     {
-        // only allowed to view data
-        ui->delBtn->setDisabled(true);
-        ui->saveBtn->setDisabled(true);
-        ui->patientIdComboBox->setDisabled(true);
-        ui->start_dateTimeEdit->setDisabled(true);
-        ui->end_dateTimeEdit->setDisabled(true);
-        ui->caseDtextEdit->setDisabled(true);
+        // allowed
+        return;
     }
+    search_string="doctor";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // allowed
+        return;
+    }
+    search_string="nurse";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // not allowed to delete
+        ui->delBtn->setDisabled(true);
+        return;
+    }
+    // only allowed to view data
+    ui->delBtn->setDisabled(true);
+    ui->saveBtn->setDisabled(true);
+    ui->patientIdComboBox->setDisabled(true);
+    ui->start_dateTimeEdit->setDisabled(true);
+    ui->end_dateTimeEdit->setDisabled(true);
+    ui->caseDtextEdit->setDisabled(true);
 }
 
 void CMngCase::fillSup(int caseid)

@@ -8,7 +8,7 @@ CRoles::CRoles(QWidget *parent)
     , ui(new Ui::CRoles)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Manage Roles");
+    this->setWindowTitle("Manage Roles --- user: "+CUserHandling::_current_user);
 
     // manage quit button
     QObject::connect(ui->quitBtn, SIGNAL(clicked()), SLOT(quitWin()));

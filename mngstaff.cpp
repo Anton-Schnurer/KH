@@ -9,7 +9,7 @@ CMngStaff::CMngStaff(QWidget *parent, int staffId)
     _StaffId = staffId;
     _orig_pwd=NULL;
     ui->setupUi(this);
-    this->setWindowTitle("Edit/Create Staff");
+    this->setWindowTitle("Edit/Create Staff --- user: "+CUserHandling::_current_user);
 
     // mask the password entry field
     ui->pwdLineEdit->setEchoMode(QLineEdit::Password);
@@ -590,7 +590,7 @@ void CMngStaff::checkPerm()
     if ((CUserHandling::search_perm_list(search_string)) && (CUserHandling::_current_staffid == _StaffId))
     {
         ui->usernLineEdit->setDisabled(true);
-        ui->pwdLineEdit->setEnabled(true);
+        ui->pwdLineEdit->setDisabled(false);
         return;
     }
     // disable the password entry field + username for all other users

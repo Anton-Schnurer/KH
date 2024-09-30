@@ -8,7 +8,7 @@ CMngPatient::CMngPatient(QWidget *parent, int patientId)
 {
     _PatientId = patientId;
     ui->setupUi(this);
-    this->setWindowTitle("Manage Patient");
+    this->setWindowTitle("Manage Patient --- user: "+CUserHandling::_current_user);
 
     // save Btn
     QObject::connect(ui->saveBtn, SIGNAL(clicked()), SLOT(save()));
@@ -171,15 +171,31 @@ void CMngPatient::checkRole()
 {
     // check if user is allowed to insert/update/delete
 
-    QString search_string="default";
+    QString search_string="admin";
     if (CUserHandling::search_role_list(search_string))
     {
-        // only allowed to view data
-        ui->firstnLineEdit->setDisabled(true);
-        ui->lastnLineEdit->setDisabled(true);
-        ui->SSNLineEdit->setDisabled(true);
-        ui->phonenLineEdit->setDisabled(true);
-        ui->saveBtn->setDisabled(true);
-        ui->delBtn->setDisabled(true);
+        // can do anything with patients
+        return;
     }
+    search_string="doctor";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // can do anything with patients
+        return;
+    }
+    search_string="nurse";
+    if (CUserHandling::search_role_list(search_string))
+    {
+        // not allowed to delete
+        ui->delBtn->setDisabled(true);
+        return;
+    }
+
+    // only allowed to view data
+    ui->delBtn->setDisabled(true);
+    ui->firstnLineEdit->setDisabled(true);
+    ui->lastnLineEdit->setDisabled(true);
+    ui->SSNLineEdit->setDisabled(true);
+    ui->phonenLineEdit->setDisabled(true);
+    ui->saveBtn->setDisabled(true);
 }

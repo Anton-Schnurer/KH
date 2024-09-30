@@ -8,7 +8,7 @@ CPerm::CPerm(QWidget *parent)
     , ui(new Ui::CPerm)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Manage Permissions");
+    this->setWindowTitle("Manage Permissions --- user: "+CUserHandling::_current_user);
 
     // Manages the search button + field
     QObject::connect(ui->searchPBtn, SIGNAL(clicked()), SLOT(search()));

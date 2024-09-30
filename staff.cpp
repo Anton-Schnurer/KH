@@ -8,7 +8,7 @@ CStaff::CStaff(QWidget *parent)
     , ui(new Ui::CStaff)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Manage Staff");
+    this->setWindowTitle("Manage Staff --- user: "+CUserHandling::_current_user);
 
     // Manages the search button + field
     QObject::connect(ui->searchBtn, SIGNAL(clicked()), SLOT(search()));
@@ -25,8 +25,8 @@ CStaff::CStaff(QWidget *parent)
     sql = new QSqlQueryModel();
     sqlquery(false);
 
-    // depending on the role of current user certain UI elements will be disabled
-    checkRole();
+    // depending on the permission of current user certain UI elements will be disabled
+    checkPerm();
 }
 
 CStaff::~CStaff()
@@ -72,17 +72,17 @@ void CStaff::search()
     sqlquery(true);
 }
 
-void CStaff::checkRole()
+void CStaff::checkPerm()
 {
     // check if current user is allowed to create a new staff member
 
-    // admin is allowed
-    QString search_string="admin";
-    if (CUserHandling::search_role_list(search_string))
+    // sysadmin is allowed
+    QString search_string="sysadmin";
+    if (CUserHandling::search_perm_list(search_string))
     {
         return;
     }
-    // not admin -> not allowed to create new staff member
+    // not sysadmin -> not allowed to create new staff member
     ui->newStaffBtn->setDisabled(true);
 
 }

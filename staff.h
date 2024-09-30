@@ -22,7 +22,7 @@ public slots:
     void newStaff();                                    // opens mngstaff window to create new staff
     void editStaff(const QModelIndex &index);           // opens mngstaff window to edit selected staff
     void search();                                      // search-field for staff table view is filled
-    void checkRole();                                   // check if current user allowed to create new staff
+    void checkPerm();                                   // check if current user allowed to create new staff
 
 private:
     Ui::CStaff *ui;

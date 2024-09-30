@@ -8,7 +8,7 @@ CMngPerm::CMngPerm(QWidget *parent, int permId)
 {
     _PermId = permId;
     ui->setupUi(this);
-    this->setWindowTitle("Manage Permission");
+    this->setWindowTitle("Manage Permission --- user: "+CUserHandling::_current_user);
 
     // save Btn
     QObject::connect(ui->saveBtn, SIGNAL(clicked()), SLOT(save()));

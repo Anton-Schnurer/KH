@@ -64,7 +64,11 @@ void CMainWindow::manageStaff()                                             // o
     CStaff staffwin;
     staffwin.setModal(true);
     staffwin.show();
-    staffwin.exec();   
+    staffwin.exec();
+
+    // reflect possible changes
+    sqlquery(false);
+
 }
 
 void CMainWindow::managePatients()                                          // opens the patient list window
@@ -73,6 +77,10 @@ void CMainWindow::managePatients()                                          // o
     patientwin.setModal(true);
     patientwin.show();
     patientwin.exec();
+
+    // reflect possible changes
+    sqlquery(false);
+
 }
 
 void CMainWindow::manageCases()                                             // opens the case list window
