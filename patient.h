@@ -23,7 +23,7 @@ public slots:
     void newPatient();                                          // new button opens mngpatient window to create new patient
     void editPatient(const QModelIndex &index);                 // opens mngpatient window to edit select patient from patientlist
     void search();                                              // search list of patients by name
-    void checkRole();                                           // check role of current user if allowed to create new patient
+
 
 
 
@@ -32,6 +32,7 @@ private:
     QSqlQueryModel *sql;
     void sqlquery(bool filter);                                 // construct sqlstmnt to query patients if search-field is filled or not
     const int _PatientID = 0;
+    void checkRole();                                           // check role of current user if allowed to create new patient
     QString _patientstr = "select PatientID, PatientLastName, PatientFirstName, PatientSSN, PatientPhoneNr \
                            from Patient";
 

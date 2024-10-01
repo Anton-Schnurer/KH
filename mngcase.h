@@ -26,14 +26,14 @@ public slots:
     void delCase();                                             // deletes the currently displayed case in the db
     void newSup();                                              // adds a supervisor to the case
     void delSup();                                              // removes a supervisor from the case
-    void checkRole();                                           // check which roles the current user has to limit functionality
+
 
 
 
 private:
     Ui::CMngCase *ui;
     int _CaseId;
-
+    void checkRole();                                           // check which roles the current user has to limit functionality
     QStandardItemModel *supmodel;
     QList<int> supervisors;
 

@@ -22,12 +22,13 @@ public slots:
     void quitWin();                             // closes the window
     void save();                                // insert new role or update existing role
     void delRole();                             // delete selected role
-    void checkPerm();                           // check permissions of current user if allowed to insert/update/delete
+
 
 
 private:
     Ui::CMngRoles *ui;
     int _RoleId;
+    void checkPerm();                           // check permissions of current user if allowed to insert/update/delete
 };
 
 #endif // MNGROLES_H

@@ -373,6 +373,8 @@ void CMngCase::checkRole()
     ui->start_dateTimeEdit->setDisabled(true);
     ui->end_dateTimeEdit->setDisabled(true);
     ui->caseDtextEdit->setDisabled(true);
+    ui->addStaffBtn->setDisabled(true);
+    ui->delStaffBtn->setDisabled(true);
 }
 
 void CMngCase::fillSup(int caseid)

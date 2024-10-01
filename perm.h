@@ -23,7 +23,7 @@ public slots:
     void newPerm();                                         // new button opens mngperm window to create new permission
     void editPerm(const QModelIndex &index);                // opens mngperm window with selected permission to edit
     void search();                                          // search field for permission list is filled
-    void checkPerm();                                       // check if current user is allowed to create new permission
+
 
 
 private:
@@ -31,6 +31,7 @@ private:
     QSqlQueryModel *sql;
     void sqlquery(bool filter);                             // constructs sqlstmnt for permission list
     const int _PermID = 0;
+    void checkPerm();                                       // check if current user is allowed to create new permission
     QString _permissionstr = "select PermID, PermName, PermDesc \
                                      from Permissions";
 

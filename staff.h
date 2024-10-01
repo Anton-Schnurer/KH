@@ -22,13 +22,14 @@ public slots:
     void newStaff();                                    // opens mngstaff window to create new staff
     void editStaff(const QModelIndex &index);           // opens mngstaff window to edit selected staff
     void search();                                      // search-field for staff table view is filled
-    void checkPerm();                                   // check if current user allowed to create new staff
+
 
 private:
     Ui::CStaff *ui;
     QSqlQueryModel *sql;
     void sqlquery(bool filter);                         // construct sql stmnt for table view of staff
     const int _StaffID = 0;
+    void checkPerm();                                   // check if current user allowed to create new staff
     QString _staffstr = "select StaffID, StaffUser, StaffPWD, StaffFirstName, StaffLastName, StaffPhoneNr, \
                                 GROUP_CONCAT(DISTINCT(Permissions.PermName)), \
                                 GROUP_CONCAT(DISTINCT(Roles.RoleName)) from Staff \
